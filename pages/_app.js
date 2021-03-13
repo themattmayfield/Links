@@ -1,6 +1,8 @@
 import { Auth } from '@supabase/ui'
 import { supabase } from '../utils/initSupabase'
 import './../style.css'
+import 'react-grid-layout/css/styles.css'
+import 'react-resizable/css/styles.css'
 
 export default function MyApp({ Component, pageProps }) {
   return (
