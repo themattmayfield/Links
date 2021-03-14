@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import useLongPress from "../utils/scripts/useLongPress";
 import styled, { keyframes, css } from 'styled-components'
 
 const rotate = keyframes`
@@ -16,6 +15,7 @@ const rotate = keyframes`
 
 const BouncyDiv = styled.div`
   animation: ${props => (props.isShaking ? css`${rotate} 2s linear infinite` : "")};
+//   animation: ${rotate} 2s linear infinite;
   animation-iteration-count: infinite;
   transform-origin: 50% 10%;
 
@@ -24,32 +24,17 @@ const BouncyDiv = styled.div`
 `;
 
 
-export default function NewCard() {
-    const [longPressCount, setlongPressCount] = useState(0)
-    const [clickCount, setClickCount] = useState(0)
+export default function NewCard({children}) {
+    
+    
     const [shake, setShake] = useState(false)
   
-    const onLongPress = () => {
-      console.log('longpress is triggered');
-      setlongPressCount(longPressCount + 1)
-      setShake(true)
-    };
-  
-    const onClick = () => {
-      console.log('click is triggered')
-      setClickCount(clickCount + 1)
-    }
-  
-    const defaultOptions = {
-      shouldPreventDefault: true,
-      delay: 500,
-    };
-    const longPressEvent = useLongPress(onLongPress, onClick, defaultOptions);
+    
   
     return (
       // <Shake distance="50%" forever={infinite}>
       <BouncyDiv isShaking={shake} className="w-full h-full">
-        <div {...longPressEvent} className="w-full h-full bg-gray-400 rounded-xl wiggle"></div>
+        {children}
       
        </BouncyDiv>
     )
