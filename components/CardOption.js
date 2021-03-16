@@ -1,9 +1,5 @@
-import Plus from './icons/Plus'
-import { useState } from "react";
 
 export default function CardOption(props) {
-  const [adding, setAdding] = useState(props.adding);
-
   
     return (
       <div 

@@ -1,60 +1,49 @@
 import React, { useState } from "react";
 import useLongPress from "../utils/scripts/useLongPress";
-import styled, { keyframes, css } from 'styled-components'
+import { MdRemoveCircle } from "react-icons/md";
 
-const rotate = keyframes`
-0% {
-  transform: rotate(-1deg);
-  animation-timing-function: ease-in;
-}
+export default function NewCard(props) {
+  const [longPressCount, setlongPressCount] = useState(0);
+  const [clickCount, setClickCount] = useState(0);
 
-50% {
-  transform: rotate(1.5deg);
-  animation-timing-function: ease-out;
-}
-`;
-
-const BouncyDiv = styled.div`
-  animation: ${props => (props.isShaking ? css`${rotate} 2s linear infinite` : "")};
-  animation-iteration-count: infinite;
-  transform-origin: 50% 10%;
-
-  animation-delay: -.5s;
-  animation-duration: .3s
-`;
-
-
-export default function NewCard() {
-    const [longPressCount, setlongPressCount] = useState(0)
-    const [clickCount, setClickCount] = useState(0)
-    const [shake, setShake] = useState(false)
-  
-    const onLongPress = () => {
-      console.log('longpress is triggered');
-      setlongPressCount(longPressCount + 1)
-      setShake(true)
-    };
-  
-    const onClick = () => {
-      console.log('click is triggered')
-      setClickCount(clickCount + 1)
+  const onLongPress = () => {
+    if (!props.jiggleMode) {
+      console.log("longpress is triggered");
+      setlongPressCount(longPressCount + 1);
+      props.jiggleModeHandler();
     }
-  
-    const defaultOptions = {
-      shouldPreventDefault: true,
-      delay: 500,
-    };
-    const longPressEvent = useLongPress(onLongPress, onClick, defaultOptions);
-  
-    return (
-      // <Shake distance="50%" forever={infinite}>
-      <BouncyDiv isShaking={shake} className="w-full h-full">
-        <div {...longPressEvent} className="w-full h-full bg-gray-400 rounded-xl wiggle"></div>
-      
-       </BouncyDiv>
-    )
-  }
+  };
 
+  const onClick = () => {
+    // console.log("click is triggered");
+    setClickCount(clickCount + 1);
+  };
 
+  const defaultOptions = {
+    shouldPreventDefault: true,
+    delay: 500,
+  };
+  const longPressEvent = useLongPress(onLongPress, onClick, defaultOptions);
 
-
+  return (
+    <>
+      <div className="relative w-full h-full">
+        {props.isShaking && (
+          <>
+            <div className="absolute w-4 h-4 bg-black rounded-full -left-1 -top-1"></div>
+            <MdRemoveCircle
+              onClick={() => props.removingModalHandler(props.itemID)}
+              className="absolute w-7 h-7 text-gray-500 -left-2 -top-3 cursor-pointer"
+            />
+          </>
+        )}
+        <div
+          {...longPressEvent}
+          className={
+            "w-full h-full bg-gray-400 rounded-xl flex flex-col items-center justify-center "
+          }
+        ></div>
+      </div>
+    </>
+  );
+}
