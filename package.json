@@ -16,6 +16,7 @@
     "react-dom": "^16.13.1",
     "react-grid-layout": "^1.2.2",
     "react-icons": "^4.2.0",
+    "react-sliding-pane": "^7.0.0",
     "react-uuid": "^1.0.2",
     "styled-components": "^5.2.1",
     "swr": "0.2.3"

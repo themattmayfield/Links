@@ -8,7 +8,7 @@ export default function NewCard(props) {
 
   const onLongPress = () => {
     if (!props.jiggleMode) {
-      console.log("longpress is triggered");
+      // console.log("longpress is triggered");
       setlongPressCount(longPressCount + 1);
       props.jiggleModeHandler();
     }
@@ -16,7 +16,7 @@ export default function NewCard(props) {
 
   const onClick = () => {
     // console.log("click is triggered");
-    setClickCount(clickCount + 1);
+    // setClickCount(clickCount + 1);
   };
 
   const defaultOptions = {
@@ -27,7 +27,9 @@ export default function NewCard(props) {
 
   return (
     <>
-      <div className="relative w-full h-full">
+      <div 
+      onClick={!props.isShaking && ( () => props.editModeHandler(props.itemID))}
+      className="relative w-full h-full">
         {props.isShaking && (
           <>
             <div className="absolute w-4 h-4 bg-black rounded-full -left-1 -top-1"></div>
