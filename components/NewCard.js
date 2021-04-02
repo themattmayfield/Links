@@ -10,7 +10,7 @@ export default function NewCard(props) {
     if (!props.jiggleMode) {
       // console.log("longpress is triggered");
       setlongPressCount(longPressCount + 1);
-      props.jiggleModeHandler();
+      props.jiggleModeHandler(true);
     }
   };
 
@@ -28,7 +28,7 @@ export default function NewCard(props) {
   return (
     <>
       <div 
-      onClick={!props.isShaking && ( () => props.editModeHandler(props.itemID))}
+      onClick={!props.isShaking ? () => props.editModeHandler(props.item) : () => {}}
       className="relative w-full h-full">
         {props.isShaking && (
           <>
@@ -41,8 +41,9 @@ export default function NewCard(props) {
         )}
         <div
           {...longPressEvent}
+          style={{"backgroundColor": props.backgroundColor}}
           className={
-            "w-full h-full bg-gray-400 rounded-xl flex flex-col items-center justify-center "
+            "w-full h-full rounded-xl flex flex-col items-center justify-center "
           }
         ></div>
       </div>

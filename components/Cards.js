@@ -1,13 +1,14 @@
 import { Responsive, WidthProvider } from "react-grid-layout";
 import NewCard from "./NewCard";
 import styled, { keyframes, css } from "styled-components";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CardOption from "../components/CardOption";
 import AddCard from "../components/AddCard";
 import uuid from "react-uuid";
 import ModalOverlay from "../components/ui/Modal";
 import { FiTrash } from "react-icons/fi";
 import _ from "lodash";
+import SideTray from '../components/SideTray'
 
 const rotate = keyframes`
 0% {
@@ -82,7 +83,30 @@ export default function Cards(props) {
     setActiveCard(id);
   };
 
+  const cardSaveHandler = (card) => {
+
+    const lg = [...layouts.lg];
+    const xxs = [...layouts.xxs];
+
+    const lgIndex = _.findIndex(lg, {'i': card.i})
+    const xxsIndex = _.findIndex(xxs, {'i': card.i})
+
+    lg[lgIndex] = card
+    xxs[xxsIndex] = card
+
+    setLayouts({
+      lg,
+      xxs,
+    });
+    
+    
+  }
   
+  const editModeHandler = (item) => {
+    setActiveCardEdit(item)    
+    setSideTray(true)    
+    setEditing(!editing)
+  };
 
   const removeCardHandler = () => {
     const lg = [...layouts.lg];
@@ -110,6 +134,9 @@ export default function Cards(props) {
   const [layouts, setLayouts] = useState(myLayout);
   const [activeCard, setActiveCard] = useState(null);
   const [removing, setRemoving] = useState(false);
+  const [sideTrayOpened, setSideTray] = useState(false);
+  const [activeCardEdit, setActiveCardEdit]= useState({});
+  const [editing, setEditing] = useState(false);
   
   
   const [getHeight, setHeight] = useState(_.maxBy(layouts.xxs, 'y').y)
@@ -120,6 +147,7 @@ export default function Cards(props) {
     setLayouts(layouts);
     setHeight(_.maxBy(layouts.xxs, 'y').y)
   };
+
 
   return (
     <>
@@ -143,7 +171,7 @@ export default function Cards(props) {
           </button>
         </div>
       </ModalOverlay>
-
+      <SideTray cardSaveHandler={cardSaveHandler} activeCard={activeCardEdit} setSideTray={setSideTray} sideTrayOpened={sideTrayOpened} />
       <ResponsiveGridLayout
         isDraggable={props.jiggleMode}
         isResizable={false}
@@ -159,12 +187,14 @@ export default function Cards(props) {
           <div key={item.i} data-grid={item}>
             <BouncyDiv isShaking={props.jiggleMode} className="w-full h-full">
               <NewCard
+              backgroundColor={item.backgroundColor || 'rgba(156, 163, 175)'}
                 jiggleMode={props.jiggleMode}
                 removingModalHandler={removingModalHandler}
                 itemID={item.i}
+                item={item}
                 isShaking={props.jiggleMode}
                 jiggleModeHandler={props.jiggleModeHandler}
-                editModeHandler={props.editModeHandler}
+                editModeHandler={editModeHandler}
               />
             </BouncyDiv>
           </div>

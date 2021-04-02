@@ -3,9 +3,8 @@ import { Card, Typography, Space } from "@supabase/ui";
 import { supabase } from "../utils/initSupabase";
 import Cards from "../components/Cards";
 import { useState } from "react";
-import uuid from "react-uuid";
 import _ from "lodash";
-import SideTray from '../components/SideTray'
+
 
 
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
@@ -13,35 +12,19 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 export default function Profile({ user }) {
   const [adding, setAdding] = useState(false);
   const [jiggleMode, setjiggleMode] = useState(false);
-  const [editing, setEditing] = useState(false);
-  const [sideTrayOpened, setSideTray] = useState(false);
+  
+  
 
-  const jiggleModeHandler = () => {
-    setjiggleMode(!jiggleMode);
-  }; 
+  
+  
 
-  const editModeHandler = (id) => {
-    setSideTray(true)
-    // alert(id)
-    setEditing(!editing)
-  };
 
-  const addingHandler = (value) => {
-    setAdding(value);
-  };
+  
 
-  const handleClickAway = () => {
-    jiggleModeHandler()
-  };
-
-  const DoNothing = (e) => {
-    e.preventDefault()
-    console.log('onclick..')
-  }
-
+  
   return (
     <>    
-    <SideTray setSideTray={setSideTray} sideTrayOpened={sideTrayOpened} />
+    
     <div style={{ maxWidth: "420px", margin: "96px auto" }}>
       <div className="hidden">
         <Card>
@@ -66,14 +49,13 @@ export default function Profile({ user }) {
         </Card>
       </div>
 
-      <ClickAwayListener onClickAway={jiggleMode ? handleClickAway : DoNothing}>
+      <ClickAwayListener onClickAway={jiggleMode ? () => setjiggleMode(false) : () => {}}>
          <div>
          <Cards
-         addingHandler={addingHandler}        
+         addingHandler={setAdding}        
          adding={adding}
         jiggleMode={jiggleMode}
-        jiggleModeHandler={jiggleModeHandler}
-        editModeHandler={editModeHandler}
+        jiggleModeHandler={setjiggleMode}
       />
       
          </div>
