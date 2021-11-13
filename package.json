@@ -13,6 +13,7 @@
     "lodash": "^4.17.20",
     "next": "latest",
     "react": "^16.13.1",
+    "react-beautiful-dnd": "^13.1.0",
     "react-color": "^2.19.3",
     "react-dom": "^16.13.1",
     "react-grid-layout": "^1.2.2",

@@ -44,7 +44,7 @@ export default function SideTray(props) {
   return (
     <>
       <SlidingPane
-        className="some-custom-class"
+        className="some-custom-class max-w-lg"
         overlayClassName="some-custom-overlay-class"
         isOpen={props.sideTrayOpened}
         // title="Edit"

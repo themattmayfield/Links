@@ -67,12 +67,12 @@ export default function Cards(props) {
     const lg = [...layouts.lg];
     const xxs = [...layouts.xxs];
 
-    lg.push({ i: uuid(), x: 0, y: lg.length, w: size, h: 1 });
-    xxs.push({ i: uuid(), x: 0, y: xxs.length, w: size, h: 1 });
+    lg.push({ i: uuid(), x: 0, y: lg.length, w: size, h: 1});
+    xxs.push({ i: uuid(), x: 0, y: xxs.length, w: size, h: 1});
 
     setLayouts({
-      lg,
-      xxs,
+      lg: lg,
+      xxs: xxs,
     });
     props.addingHandler(false);
     console.log(layouts);
@@ -81,26 +81,7 @@ export default function Cards(props) {
   const removingModalHandler = (id) => {
     setRemoving(!removing);
     setActiveCard(id);
-  };
-
-  const cardSaveHandler = (card) => {
-
-    const lg = [...layouts.lg];
-    const xxs = [...layouts.xxs];
-
-    const lgIndex = _.findIndex(lg, {'i': card.i})
-    const xxsIndex = _.findIndex(xxs, {'i': card.i})
-
-    lg[lgIndex] = card
-    xxs[xxsIndex] = card
-
-    setLayouts({
-      lg,
-      xxs,
-    });
-    
-    
-  }
+  };  
   
   const editModeHandler = (item) => {
     setActiveCardEdit(item)    
@@ -120,8 +101,8 @@ export default function Cards(props) {
     indexXXS !== -1 ? xxs.splice(indexXXS, 1) : "";
 
     setLayouts({
-      lg,
-      xxs,
+      lg: lg,
+      xxs: xxs,
     });
     setRemoving(false);
   };
@@ -131,6 +112,10 @@ export default function Cards(props) {
     xxs: [{ i: uuid(), x: 0, y: 0, w: 2, h: 1 }],
   };
 
+  // const cardUI = myLayout
+  // cardUI.xxs[0].backgroundColor = 'rgba(156, 163, 175)'
+  // cardUI.lg[0].backgroundColor = 'rgba(156, 163, 175)'
+
   const [layouts, setLayouts] = useState(myLayout);
   const [activeCard, setActiveCard] = useState(null);
   const [removing, setRemoving] = useState(false);
@@ -138,11 +123,37 @@ export default function Cards(props) {
   const [activeCardEdit, setActiveCardEdit]= useState({});
   const [editing, setEditing] = useState(false);
   
-  
   const [getHeight, setHeight] = useState(_.maxBy(layouts.xxs, 'y').y)
   
 
+  const cardSaveHandler = (card) => {
+
+    const lg = [...layouts.lg];
+    const xxs = [...layouts.xxs];
+
+    const lgIndex = _.findIndex(lg, {i: card.i})
+    const xxsIndex = _.findIndex(xxs, {i: card.i})
+
+    lg[lgIndex] = { ...card }
+    xxs[xxsIndex] = { ...card }
+
+
+    const newLayout = {
+      lg: lg,
+      xxs: xxs,
+    }
+
+    setLayouts({
+      lg: lg,
+      xxs: xxs,
+    });    
+    
+  }
+
   const onLayoutChange = (layout, layouts) => {
+    console.log(layouts);
+    const cardsForUI = {...layouts}
+    console.log(cardsForUI);
     saveToLS("layouts", layouts);
     setLayouts(layouts);
     setHeight(_.maxBy(layouts.xxs, 'y').y)
@@ -187,6 +198,8 @@ export default function Cards(props) {
           <div key={item.i} data-grid={item}>
             <BouncyDiv isShaking={props.jiggleMode} className="w-full h-full">
               <NewCard
+              // backgroundColor={'rgba(156, 163, 175)'}
+              // backgroundColor={_.find(cardUI.xxs, {'i': item.i})}
               backgroundColor={item.backgroundColor || 'rgba(156, 163, 175)'}
                 jiggleMode={props.jiggleMode}
                 removingModalHandler={removingModalHandler}

@@ -5,7 +5,7 @@ import { MdRemoveCircle } from "react-icons/md";
 export default function NewCard(props) {
   const [longPressCount, setlongPressCount] = useState(0);
   const [clickCount, setClickCount] = useState(0);
-
+// console.log(props)
   const onLongPress = () => {
     if (!props.jiggleMode) {
       // console.log("longpress is triggered");
@@ -28,6 +28,7 @@ export default function NewCard(props) {
   return (
     <>
       <div 
+      style={{"cursor": "pointer"}}
       onClick={!props.isShaking ? () => props.editModeHandler(props.item) : () => {}}
       className="relative w-full h-full">
         {props.isShaking && (
@@ -43,7 +44,7 @@ export default function NewCard(props) {
           {...longPressEvent}
           style={{"backgroundColor": props.backgroundColor}}
           className={
-            "w-full h-full rounded-xl flex flex-col items-center justify-center "
+            "w-full cursor-pointer h-full rounded-xl flex flex-col items-center justify-center "
           }
         ></div>
       </div>
