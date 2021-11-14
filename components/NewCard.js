@@ -5,7 +5,7 @@ import { useCard } from "@/utils/cardContext";
 import { useJiggle } from "@/utils/jiggleModeContext";
 
 export default function NewCard({ card }) {
-  const { removingModalHandler, editModeHandler } = useCard();
+  const { removingModalHandler, editModeHandler, cardMedia } = useCard();
   const { jiggleMode, setjiggleMode } = useJiggle();
 
   const [longPressCount, setlongPressCount] = useState(0);
@@ -49,7 +49,8 @@ export default function NewCard({ card }) {
         <div
           {...longPressEvent}
           style={{
-            backgroundColor: card?.backgroundColor || "rgba(156, 163, 175)",
+            backgroundColor:
+              cardMedia[card?.i]?.backgroundColor || "rgba(156, 163, 175)",
           }}
           className={
             "w-full cursor-pointer h-full rounded-xl flex flex-col items-center justify-center "

@@ -7,7 +7,6 @@ import {
   signOut,
   EmailAuthProvider,
   createUserWithEmailAndPassword,
-  onIdTokenChanged,
   sendPasswordResetEmail,
   reauthenticateWithCredential,
   deleteUser,

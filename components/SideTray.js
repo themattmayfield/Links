@@ -1,6 +1,6 @@
 import SlidingPane from "react-sliding-pane";
 import "react-sliding-pane/dist/react-sliding-pane.css";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Slider from "@material-ui/core/Slider";
@@ -9,6 +9,7 @@ import { BsImage, BsCircleFill } from "react-icons/bs";
 import { BiText } from "react-icons/bi";
 import { SketchPicker } from "react-color";
 import { useCard } from "@/utils/cardContext";
+import RemoveCardModal from "./RemoveCardModal";
 
 export default function SideTray() {
   const {
@@ -18,10 +19,16 @@ export default function SideTray() {
     setCardMode,
     editModeHandler,
     cardSaveHandler,
+    removeCardHandler,
+    removingModalHandler,
+    cardMedia,
+    updateMedia,
   } = useCard();
 
   const [opacity, setOpacity] = useState(30);
   const [mode, setMode] = useState(null);
+
+  const [mediaState, setMediaState] = useState({});
 
   const opacityHandler = (event, newValue) => {
     setOpacity(newValue);
@@ -34,13 +41,22 @@ export default function SideTray() {
   };
 
   const handleColorChange = (color) => {
-    const newCard = { ...activeCard };
-    newCard.backgroundColor = color.hex;
-    setActiveCard(newCard);
+    setMediaState((prevState) => ({
+      ...prevState,
+      backgroundColor: color.hex,
+    }));
+  };
+
+  const handleSave = () => {
+    cardSaveHandler();
+    !_.isEmpty(mediaState) && updateMedia(mediaState);
+    setMediaState({});
+    setCardMode(null);
   };
 
   return (
     <>
+      <RemoveCardModal removeCardHandler={removeCardHandler} />
       <SlidingPane
         className="some-custom-class max-w-lg"
         overlayClassName="some-custom-overlay-class"
@@ -50,15 +66,16 @@ export default function SideTray() {
         width="80%"
         onRequestClose={() => {
           // triggered on "<" on left top click or on outside click
+          setMediaState({});
           editModeHandler();
         }}
       >
-        <p>{JSON.stringify(activeCard)}</p>
-        {/* <p>{backgroundColor}</p> */}
         <div
           style={{
             backgroundColor:
-              activeCard?.backgroundColor || "rgba(156, 163, 175)",
+              mediaState?.backgroundColor ||
+              cardMedia[activeCard?.i]?.backgroundColor ||
+              "rgba(156, 163, 175)",
           }}
           className={`${
             activeCard?.w == 1 ? "w-7/12 " : "w-full"
@@ -112,7 +129,7 @@ export default function SideTray() {
                 onClick={() => setMode(false)}
               />
               <SketchPicker
-                color={activeCard?.backgroundColor}
+                color={mediaState?.backgroundColor}
                 onChangeComplete={handleColorChange}
               />
             </div>
@@ -139,15 +156,15 @@ export default function SideTray() {
           <button className="w-1/2 py-1.5 rounded focus:outline-none bg-black bg-opacity-50 text-white">
             Duplicate
           </button>
-          <button className="w-1/2 py-1.5 rounded focus:outline-none bg-red-600 text-white flex items-center justify-center">
+          <button
+            onClick={() => removingModalHandler(activeCard?.i)}
+            className="w-1/2 py-1.5 rounded focus:outline-none bg-red-600 text-white flex items-center justify-center"
+          >
             <FiTrash className="w-4 h-4 mr-1.5" /> Delete
           </button>
         </div>
         <button
-          onClick={() => {
-            setCardMode(null);
-            cardSaveHandler(activeCard);
-          }}
+          onClick={handleSave}
           className="w-full py-1.5 rounded focus:outline-none bg-indigo-700 text-white"
         >
           Save

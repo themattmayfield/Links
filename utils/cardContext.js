@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, createContext } from "react";
 import _ from "lodash";
 import { useAuth } from "./auth";
 import { db } from "./firebase";
-import { ref, onValue, set, remove } from "firebase/database";
+import { getDoc, addDoc, doc, setDoc, updateDoc } from "firebase/firestore";
 import uuid from "react-uuid";
 
 const cardContext = createContext();
@@ -16,46 +16,20 @@ export const useCard = () => {
   return useContext(cardContext);
 };
 
-function getFromLS(key) {
-  let ls = {};
-  if (global.localStorage) {
-    try {
-      ls = JSON.parse(global.localStorage.getItem("rgl-8")) || {};
-    } catch (e) {
-      /*Ignore*/
-    }
-  }
-  return ls[key];
-}
-
-function saveToLS(key, value) {
-  if (global.localStorage) {
-    global.localStorage.setItem(
-      "rgl-8",
-      JSON.stringify({
-        [key]: value,
-      })
-    );
-  }
-}
-
-const myLayout = getFromLS("layouts") || {
-  lg: [{ i: uuid(), x: 0, y: 0, w: 2, h: 1 }],
-  xxs: [{ i: uuid(), x: 0, y: 0, w: 2, h: 1 }],
-};
+// const myLayout = getFromLS("layouts") || {
+//   lg: [{ i: uuid(), x: 0, y: 0, w: 2, h: 1 }],
+//   xxs: [{ i: uuid(), x: 0, y: 0, w: 2, h: 1 }],
+// };
 
 function useProvideCard() {
   const { authUser } = useAuth();
 
-  const [cards, setCards] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
   const [activeCard, setActiveCard] = useState(null);
   const [cardMode, setCardMode] = useState(null);
 
-  const [layouts, setLayouts] = useState(myLayout);
-  const [getHeight, setHeight] = useState(_.maxBy(layouts.xxs, "y").y);
+  const [cardMedia, setCardMedia] = useState({});
+  const [layouts, setLayouts] = useState(null);
+  const [getHeight, setHeight] = useState(_.maxBy(layouts?.xxs, "y")?.y);
 
   const editModeHandler = (item) => {
     if (item) {
@@ -68,6 +42,7 @@ function useProvideCard() {
   };
 
   const removingModalHandler = (id) => {
+    console.log(id);
     if (id) {
       setCardMode("remove");
       setActiveCard(id);
@@ -90,10 +65,10 @@ function useProvideCard() {
       xxs: xxs,
     });
     editModeHandler(newObject);
-    console.log(layouts);
   };
 
   const removeCardHandler = () => {
+    console.log(activeCard);
     const lg = [...layouts.lg];
     const xxs = [...layouts.xxs];
 
@@ -111,100 +86,85 @@ function useProvideCard() {
     removingModalHandler(false);
   };
 
-  const cardSaveHandler = (card) => {
+  const cardSaveHandler = () => {
     const lg = [...layouts.lg];
     const xxs = [...layouts.xxs];
 
-    const lgIndex = _.findIndex(lg, { i: card.i });
-    const xxsIndex = _.findIndex(xxs, { i: card.i });
+    const lgIndex = _.findIndex(lg, { i: activeCard.i });
+    const xxsIndex = _.findIndex(xxs, { i: activeCard.i });
 
-    lg[lgIndex] = { ...card };
-    xxs[xxsIndex] = { ...card };
+    lg[lgIndex] = { ...activeCard };
+    xxs[xxsIndex] = { ...activeCard };
 
     setLayouts({
       lg: lg,
       xxs: xxs,
     });
+    console.log(xxs);
   };
 
-  const onLayoutChange = (layout, layouts) => {
-    console.log(layouts);
-    const cardsForUI = { ...layouts };
-    console.log(cardsForUI);
-    saveToLS("layouts", layouts);
+  const onLayoutChange = async (layout, layouts) => {
+    const cleanLayout = {
+      lg: [],
+      xxs: [],
+    };
+    _.forEach(layout, (value) => {
+      cleanLayout.lg.push(_.omitBy(value, _.isNil));
+      cleanLayout.xxs.push(_.omitBy(value, _.isNil));
+    });
+
+    try {
+      const docRef = doc(db, "users", authUser?.uid);
+      await setDoc(docRef, { layout: cleanLayout }, { merge: true });
+
+      console.log("Document written with ID: ", docRef);
+    } catch (error) {
+      console.log(error);
+    }
     setLayouts(layouts);
-    setHeight(_.maxBy(layouts.xxs, "y").y);
+    setHeight(_.maxBy(layouts?.xxs, "y")?.y);
   };
 
-  // const saveCard = async (value) => {
-  //   try {
-  //     const cardsSpread = cards.length ? [...cards] : [];
-  //     cardsSpread.push(value);
-  //     handleNonAuthUserCardUpdates(cardsSpread);
-  //     if (authUser) {
-  //       set(ref(db, "users/" + authUser?.uid), cardsSpread);
-  //     }
-  //   } catch (e) {
-  //     alert(e);
-  //     // saving error
-  //   }
-  //   setScanned(false);
-  //   setActiveCard(null);
-  // };
+  const updateMedia = async (mediaState) => {
+    console.log(mediaState);
+    try {
+      const docRef = doc(db, "users", authUser?.uid);
+      await setDoc(
+        docRef,
+        {
+          cardMedia: {
+            [activeCard?.i]: {
+              ...mediaState,
+            },
+          },
+        },
+        { merge: true }
+      );
+      console.log("Document written with ID: ", docRef);
+    } catch (error) {
+      console.log(error);
+    }
+    setCardMedia((prevState) => ({
+      ...prevState,
+      [activeCard.i]: mediaState,
+    }));
+  };
 
-  // const deleteCard = async (id) => {
-  //   try {
-  //     const cardsSpread = [...cards];
-  //     const cardIndex = _.findIndex(cardsSpread, { id: id });
-  //     cardsSpread.splice(cardIndex, 1);
-  //     handleNonAuthUserCardUpdates(cardsSpread);
-  //     setActiveCard(null);
-  //     if (authUser) {
-  //       set(ref(db, "users/" + authUser?.uid), cardsSpread);
-  //     }
-  //   } catch (e) {
-  //     alert(e);
-  //   }
-  // };
+  useEffect(() => {
+    if (authUser) {
+      const docRef = doc(db, "users", authUser?.uid);
 
-  // const editCard = async (data) => {
-  //   try {
-  //     const cardsSpread = [...cards];
-  //     const cardIndex = _.findIndex(cardsSpread, { id: data?.id });
-  //     cardsSpread[cardIndex] = data;
-  //     handleNonAuthUserCardUpdates(cardsSpread);
-  //     setActiveCard(data);
-  //     if (authUser) {
-  //       set(ref(db, "users/" + authUser?.uid), cardsSpread);
-  //     }
-  //   } catch (e) {
-  //     alert(e);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (authUser) {
-  //     onValue(ref(db, "/users/" + authUser?.uid), (snapshot) => {
-  //       const data = snapshot.val();
-  //       console.log(data);
-  //       // console.log(snapshot);
-  //       setCards(data || []);
-  //     });
-  //   }
-
-  //   //   const unsubscribe = onIdTokenChanged(auth, handleUser);
-
-  //   //   return () => {
-
-  //   //     unsubscribe();
-  //   //   };
-  // }, [authUser]);
+      getDoc(docRef).then((docSnap) => {
+        if (docSnap.exists()) {
+          console.log(docSnap.data());
+          setLayouts(docSnap.data().layout || {});
+          setCardMedia(docSnap.data().cardMedia || {});
+        }
+      });
+    }
+  }, [authUser]);
 
   return {
-    cards,
-    loading,
-    setLoading,
-
     activeCard,
     setActiveCard,
     editModeHandler,
@@ -217,9 +177,8 @@ function useProvideCard() {
     cardSaveHandler,
     layouts,
     getHeight,
-    // saveCard,
-    // deleteCard,
-    // editCard,
-    // deleteUserCards,
+    cardMedia,
+    setCardMedia,
+    updateMedia,
   };
 }

@@ -10,7 +10,7 @@ import { useCard } from "@/utils/cardContext";
 
 export default function Home() {
   const { loading } = useAuth();
-  const { jiggleRef, jiggleMode, setjiggleMode } = useJiggle();
+  const { jiggleRef, setjiggleMode } = useJiggle();
   const { cardMode } = useCard();
 
   useOnClickOutside(jiggleRef, () => {

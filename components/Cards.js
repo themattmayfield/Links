@@ -1,28 +1,30 @@
+// import { useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import NewCard from "./NewCard";
 import { BouncyDiv } from "./pageUtils";
 import _ from "lodash";
 import SideTray from "../components/SideTray";
 import { useCard } from "@/utils/cardContext";
+import { useAuth } from "@/utils/auth";
 import RemoveCardModal from "./RemoveCardModal";
 import { useJiggle } from "@/utils/jiggleModeContext";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 export default function Cards() {
-  const {
-    addCardHandler,
-    removeCardHandler,
-    onLayoutChange,
-    layouts,
-    getHeight,
-  } = useCard();
+  const { addCardHandler, onLayoutChange, layouts, getHeight, cardMode } =
+    useCard();
+
   const { jiggleMode } = useJiggle();
+
+  if (!layouts) {
+    return <p>...LOADING</p>;
+  }
 
   return (
     <>
-      <RemoveCardModal removeCardHandler={removeCardHandler} />
-      <SideTray />
+      {cardMode === "remove" ? <RemoveCardModal /> : null}
+      {cardMode === "edit" ? <SideTray /> : null}
       <div className="px-2">
         <button
           onClick={() => addCardHandler()}
@@ -43,7 +45,7 @@ export default function Cards() {
         // style={{minHeight: `calc(170px * ${layouts.xxs.length})`}}
         style={{ minHeight: `calc(170px * ${getHeight})` }}
       >
-        {layouts.xxs.map((card, i) => (
+        {layouts?.xxs?.map((card, i) => (
           <div key={card.i} data-grid={card}>
             <BouncyDiv isShaking={jiggleMode} className="w-full h-full">
               <NewCard card={card} />
