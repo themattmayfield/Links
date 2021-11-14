@@ -1,16 +1,21 @@
 import React, { useState } from "react";
 import useLongPress from "../utils/scripts/useLongPress";
 import { MdRemoveCircle } from "react-icons/md";
+import { useCard } from "@/utils/cardContext";
+import { useJiggle } from "@/utils/jiggleModeContext";
 
-export default function NewCard(props) {
+export default function NewCard({ card }) {
+  const { removingModalHandler, editModeHandler } = useCard();
+  const { jiggleMode, setjiggleMode } = useJiggle();
+
   const [longPressCount, setlongPressCount] = useState(0);
   const [clickCount, setClickCount] = useState(0);
-// console.log(props)
+
   const onLongPress = () => {
-    if (!props.jiggleMode) {
+    if (!jiggleMode) {
       // console.log("longpress is triggered");
       setlongPressCount(longPressCount + 1);
-      props.jiggleModeHandler(true);
+      setjiggleMode(true);
     }
   };
 
@@ -27,22 +32,25 @@ export default function NewCard(props) {
 
   return (
     <>
-      <div 
-      style={{"cursor": "pointer"}}
-      onClick={!props.isShaking ? () => props.editModeHandler(props.item) : () => {}}
-      className="relative w-full h-full">
-        {props.isShaking && (
+      <div
+        style={{ cursor: "pointer" }}
+        onClick={!jiggleMode ? () => editModeHandler(card) : null}
+        className="relative w-full h-full"
+      >
+        {jiggleMode && (
           <>
             <div className="absolute w-4 h-4 bg-black rounded-full -left-1 -top-1"></div>
             <MdRemoveCircle
-              onClick={() => props.removingModalHandler(props.itemID)}
+              onClick={() => removingModalHandler(card?.i)}
               className="absolute w-7 h-7 text-gray-500 -left-2 -top-3 cursor-pointer"
             />
           </>
         )}
         <div
           {...longPressEvent}
-          style={{"backgroundColor": props.backgroundColor}}
+          style={{
+            backgroundColor: card?.backgroundColor || "rgba(156, 163, 175)",
+          }}
           className={
             "w-full cursor-pointer h-full rounded-xl flex flex-col items-center justify-center "
           }
