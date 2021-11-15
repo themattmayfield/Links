@@ -47,6 +47,15 @@ export default function SideTray() {
     }));
   };
 
+  const handleChange = (e) => {
+    // console.log(e.currentTarget.files[0]);
+    const obj = URL.createObjectURL(e.currentTarget.files[0]);
+    setMediaState((prevState) => ({
+      ...prevState,
+      image: obj,
+    }));
+  };
+
   const handleSave = () => {
     cardSaveHandler();
     !_.isEmpty(mediaState) && updateMedia(mediaState);
@@ -76,10 +85,13 @@ export default function SideTray() {
               mediaState?.backgroundColor ||
               cardMedia[activeCard?.i]?.backgroundColor ||
               "rgba(156, 163, 175)",
+            backgroundImage: `url(${
+              mediaState?.image || cardMedia[activeCard?.i]?.image || null
+            })`,
           }}
           className={`${
             activeCard?.w == 1 ? "w-7/12 " : "w-full"
-          } h-32 mb-4 rounded-xl flex flex-col items-center justify-center`}
+          } h-32 mb-4 rounded-xl flex flex-col items-center justify-center bg-cover bg-center`}
         ></div>
 
         <div className="flex items-center justify-between w-full space-x-2 mb-6">
@@ -106,10 +118,21 @@ export default function SideTray() {
         </div>
 
         <div className="flex items-center justify-around mb-10">
-          <BsImage
-            onClick={() => setMode("image")}
-            className="w-10 h-10 flex items-center justify-center md:w-32 md:h-32 text-gray-700 cursor-pointer"
-          />
+          <label>
+            <input
+              className="hidden"
+              type="file"
+              onChange={(e) => {
+                handleChange(e);
+                setMode("image");
+              }}
+            />
+            <BsImage
+              // onClick={() => setMode("image")}
+              className="w-10 h-10 flex items-center justify-center md:w-32 md:h-32 text-gray-700 cursor-pointer"
+            />
+          </label>
+
           <BsCircleFill
             style={{ color: activeCard?.backgroundColor || "purple" }}
             onClick={() => setMode("color")}

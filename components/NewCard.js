@@ -46,16 +46,17 @@ export default function NewCard({ card }) {
             />
           </>
         )}
-        <div
+        <button
           {...longPressEvent}
           style={{
             backgroundColor:
               cardMedia[card?.i]?.backgroundColor || "rgba(156, 163, 175)",
+            backgroundImage: `url(${cardMedia[card?.i]?.image})`,
           }}
           className={
-            "w-full cursor-pointer h-full rounded-xl flex flex-col items-center justify-center "
+            "w-full cursor-pointer h-full rounded-xl flex flex-col items-center justify-center bg-cover bg-center"
           }
-        ></div>
+        ></button>
       </div>
     </>
   );
