@@ -2,9 +2,15 @@ import React, { useState, useEffect, useContext, createContext } from "react";
 import _ from "lodash";
 import { useAuth } from "./auth";
 import { db } from "./firebase";
-import { getDoc, addDoc, doc, setDoc, updateDoc } from "firebase/firestore";
+import {
+  getDoc,
+  doc,
+  setDoc,
+  updateDoc,
+  deleteField,
+} from "firebase/firestore";
 import uuid from "react-uuid";
-
+import { deleteFile } from "./storage";
 const cardContext = createContext();
 
 export function CardProvider({ children }) {
@@ -41,11 +47,10 @@ function useProvideCard() {
     }
   };
 
-  const removingModalHandler = (id) => {
-    console.log(id);
-    if (id) {
+  const removingModalHandler = (card) => {
+    if (card) {
       setCardMode("remove");
-      setActiveCard(id);
+      setActiveCard(card);
     } else {
       setCardMode(null);
       setActiveCard(null);
@@ -67,13 +72,12 @@ function useProvideCard() {
     editModeHandler(newObject);
   };
 
-  const removeCardHandler = () => {
-    console.log(activeCard);
+  const deleteCardUI = () => {
     const lg = [...layouts.lg];
     const xxs = [...layouts.xxs];
 
-    const indexLG = _.findIndex(lg, { i: activeCard });
-    const indexXXS = _.findIndex(xxs, { i: activeCard });
+    const indexLG = _.findIndex(lg, { i: activeCard?.i });
+    const indexXXS = _.findIndex(xxs, { i: activeCard?.i });
 
     indexLG !== -1 ? lg.splice(indexLG, 1) : "";
 
@@ -84,6 +88,23 @@ function useProvideCard() {
       xxs: xxs,
     });
     removingModalHandler(false);
+  };
+  const removeCardHandler = async () => {
+    if (cardMedia[activeCard?.i]?.image) {
+      deleteFile(`/${authUser?.uid}/${activeCard?.i}`)
+        .then(() => {
+          // const cardMediaSpread = { ...cardMedia };
+          // cardMediaSpread[activeCard?.i] = null;
+          // const newMedia = _.omitBy(cardMediaSpread, _.isNil);
+          // setCardMedia(newMedia);
+          deleteCardUI();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      deleteCardUI();
+    }
   };
 
   const cardSaveHandler = () => {
@@ -100,10 +121,18 @@ function useProvideCard() {
       lg: lg,
       xxs: xxs,
     });
-    console.log(xxs);
+    // console.log(xxs);
   };
 
   const onLayoutChange = async (layout, layouts) => {
+    const cleanMedia = {};
+    _.forEach(cardMedia, (value, key) => {
+      const obj = _.find(layout, { i: key });
+      if (obj) {
+        cleanMedia[key] = value;
+      }
+    });
+
     const cleanLayout = {
       lg: [],
       xxs: [],
@@ -115,9 +144,13 @@ function useProvideCard() {
 
     try {
       const docRef = doc(db, "users", authUser?.uid);
-      await setDoc(docRef, { layout: cleanLayout }, { merge: true });
+      await setDoc(
+        docRef,
+        { cardMedia: cleanMedia, layout: cleanLayout },
+        { merge: false }
+      );
 
-      console.log("Document written with ID: ", docRef);
+      // console.log("Document written with ID: ", docRef);
     } catch (error) {
       console.log(error);
     }
@@ -156,9 +189,11 @@ function useProvideCard() {
 
       getDoc(docRef).then((docSnap) => {
         if (docSnap.exists()) {
-          console.log(docSnap.data());
+          // console.log(docSnap.data());
           setLayouts(docSnap.data().layout || {});
           setCardMedia(docSnap.data().cardMedia || {});
+        } else {
+          setLayouts({});
         }
       });
     }

@@ -1,34 +1,24 @@
 import { useState } from "react";
 import { useAuth } from "@/utils/auth";
 import {
-  AuthError,
   AuthLayout,
   AuthInput,
-  AuthShowPassword,
   AuthSubmit,
   AuthInputContainer,
-  AuthTitle,
   AuthRedirect,
+  AuthTitle,
 } from "@/components/Auth/AuthPageUtils";
 import Loading from "@/components/Loading";
 
 export default function Login() {
-  const { loading, setError, error, signin, emailAuthProv } = useAuth();
+  const { loading, signin, emailAuthProv } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = (event) => {
     event.preventDefault();
-    if (!email) {
-      setError("Please enter email");
-      return true;
-    }
-    if (!password) {
-      setError("Please enter password");
-      return true;
-    }
+
     const credential = emailAuthProv(email, password);
     signin(credential);
   };
@@ -36,47 +26,75 @@ export default function Login() {
   if (loading) {
     return <Loading />;
   }
-
   return (
     <AuthLayout>
-      <form onSubmit={onSubmit}>
-        <AuthTitle title="Login" />
+      <div>
+        <img
+          className="mx-auto h-12 w-auto"
+          src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
+          alt="Workflow"
+        />
+        <AuthTitle title="Sign in to your account" />
+      </div>
+      <form className="mt-8 space-y-6" onSubmit={onSubmit}>
+        <input type="hidden" name="remember" defaultValue="true" />
         <AuthInputContainer>
           <AuthInput
             title="Email"
+            name="email"
             type="email"
             value={email}
+            autoComplete="email"
+            value={email}
             onChange={(event) => setEmail(event.target.value)}
-            name="email"
-            id="signUpEmail"
+            id="email-address"
+            top
+            required
+            htmlFor="email-address"
+            placeholder="Email address"
           />
           <AuthInput
             title="Password"
-            type={showPassword ? "text" : "password"}
-            name="passwordOne"
+            type="password"
+            name="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            id="signUpPassword"
+            id="password"
+            bottom
+            required
+            placeholder="Password"
           />
         </AuthInputContainer>
-        <div className="px-8 space-y-6 pt-4">
-          <AuthShowPassword
-            onClick={() => setShowPassword((prevState) => !prevState)}
-            showPassword={showPassword}
-          />
-          <AuthSubmit title="Login" disabled={!email || !password} />
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <input
+              id="remember-me"
+              name="remember-me"
+              type="checkbox"
+              className="h-4 w-4 text-trustBlue focus:ring-trustBlue border-gray-300 rounded"
+            />
+            <label
+              htmlFor="remember-me"
+              className="ml-2 block text-sm text-gray-900"
+            >
+              Remember me
+            </label>
+          </div>
+
+          <AuthRedirect text="Forgot your password?" link="/forgot" />
         </div>
-        <AuthError error={error} />
-        <div className="pt-6 space-y-2">
+
+        <AuthSubmit title="Login" disabled={!email || !password} />
+        <div className="flex items-center justify-center">
           <AuthRedirect
-            text="Forgot password?"
-            link="/forgot"
-            linkText="Reset Password"
-          />
-          <AuthRedirect
-            text="Do not have an account?"
+            text={
+              <p className="font-medium text-trustBlue hover:text-trustBlue cursor-pointer">
+                Don't have an account?{" "}
+                <span className="font-bold hover:text-black">Sign up</span>
+              </p>
+            }
             link="/register"
-            linkText="Register"
           />
         </div>
       </form>

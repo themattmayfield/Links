@@ -4,6 +4,7 @@ import "react-resizable/css/styles.css";
 import { AuthProvider } from "@/utils/auth";
 import { CardProvider } from "@/utils/cardContext";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { JiggleProvider } from "@/utils/jiggleModeContext";
 export default function MyApp({ Component, pageProps }) {
   return (
@@ -11,6 +12,7 @@ export default function MyApp({ Component, pageProps }) {
       <CardProvider>
         <JiggleProvider>
           <Component {...pageProps} />
+          <ToastContainer />
         </JiggleProvider>
       </CardProvider>
     </AuthProvider>

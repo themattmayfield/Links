@@ -1,12 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/utils/auth";
 import _ from "lodash";
-import {
-  AuthError,
-  AuthInput,
-  AuthShowPassword,
-  AuthSubmit,
-} from "@/components/Auth/AuthPageUtils";
+import { AuthInput, AuthSubmit } from "@/components/Auth/AuthPageUtils";
 import Layout from "@/components/Layout";
 import { PageContainer } from "@/components/pageUtils";
 import Router from "next/router";
@@ -17,7 +12,6 @@ export default function AuthReset() {
   const [oldPassword, setOldPassword] = useState("");
   const [passwordOne, setPasswordOne] = useState("");
   const [passwordTwo, setPasswordTwo] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = (event) => {
     event.preventDefault();
@@ -44,7 +38,7 @@ export default function AuthReset() {
             </div>
             <AuthInput
               title="Old Password"
-              type={showPassword ? "text" : "password"}
+              type="password"
               name="oldPassword"
               value={oldPassword}
               onChange={(event) => setOldPassword(event.target.value)}
@@ -52,7 +46,7 @@ export default function AuthReset() {
             />
             <AuthInput
               title="New Password"
-              type={showPassword ? "text" : "password"}
+              type="password"
               name="passwordOne"
               value={passwordOne}
               onChange={(event) => setPasswordOne(event.target.value)}
@@ -60,7 +54,7 @@ export default function AuthReset() {
             />
             <AuthInput
               title="Confirm New Password"
-              type={showPassword ? "text" : "password"}
+              type="password"
               name="password"
               value={passwordTwo}
               onChange={(event) => setPasswordTwo(event.target.value)}
@@ -69,16 +63,10 @@ export default function AuthReset() {
           </div>
 
           <div className="space-y-6 pt-4">
-            <AuthShowPassword
-              onClick={() => setShowPassword((prevState) => !prevState)}
-              showPassword={showPassword}
-            />
-
             <AuthSubmit
               title="Reset"
               disabled={!oldPassword || !passwordOne || !passwordTwo}
             />
-            <AuthError error={error} />
           </div>
         </form>
       </PageContainer>

@@ -12,8 +12,8 @@ import {
   deleteUser,
   updatePassword,
 } from "firebase/auth";
-import { toast } from "react-toastify";
 import { errorCodes } from "./errorCodes";
+import { Toast } from "@/components/pageUtils";
 
 const authContext = createContext();
 
@@ -28,7 +28,7 @@ export const useAuth = () => {
 
 function useProvideAuth() {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const authUser = auth.currentUser;
 
@@ -37,9 +37,7 @@ function useProvideAuth() {
     const errorMessage = error.message;
 
     setLoading(false);
-    Toast.show(errorCodes[errorCode] || errorMessage, {
-      duration: Toast.durations.LONG,
-    });
+    Toast("error", errorCodes[errorCode] || errorMessage);
   };
 
   const signout = () => {
@@ -58,17 +56,14 @@ function useProvideAuth() {
     return credential;
   };
 
-  const signup = async (email, password) => {
-    try {
-      const { user } = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      Router.push("/login");
-    } catch (error) {
-      handleError(error);
-    }
+  const signup = (email, password) => {
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        Router.push("/login");
+      })
+      .catch((error) => {
+        handleError(error);
+      });
   };
 
   const signin = (credential) => {
@@ -83,17 +78,14 @@ function useProvideAuth() {
   };
 
   const forgotPassword = (email) => {
-    try {
-      sendPasswordResetEmail(auth, email).then(() => {
-        Toast.show("Check your mail for password recovery instructions", {
-          duration: Toast.durations.LONG,
-        });
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        Router.push("/login");
+        Toast("success", "Check your mail for password recovery instructions");
+      })
+      .catch((error) => {
+        handleError(error);
       });
-
-      return true;
-    } catch (error) {
-      handleError(error);
-    }
   };
 
   const reauthenticateUser = async (credential) => {
@@ -141,7 +133,9 @@ function useProvideAuth() {
       } else {
         setUser(false);
       }
+      setLoading(false);
     });
+
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);

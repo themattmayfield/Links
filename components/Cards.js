@@ -5,7 +5,7 @@ import { BouncyDiv } from "./pageUtils";
 import _ from "lodash";
 import SideTray from "../components/SideTray";
 import { useCard } from "@/utils/cardContext";
-import { useAuth } from "@/utils/auth";
+// import { useAuth } from "@/utils/auth";
 import RemoveCardModal from "./RemoveCardModal";
 import { useJiggle } from "@/utils/jiggleModeContext";
 

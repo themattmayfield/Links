@@ -3,20 +3,20 @@ import Navbar from "./Navbar";
 // import Footer from "./Footer";
 import { useAuth } from "@/utils/auth";
 import Loading from "./Loading";
-import { useRouter } from "next/router";
+import Router from "next/router";
 
 export default function Layout({ children }) {
-  const { user, loading, authUser } = useAuth();
-  const router = useRouter();
+  const { loading, authUser } = useAuth();
 
   if (loading) {
     return <Loading />;
   }
+
   if (!authUser) {
-    // router.push("/login");
+    Router.push("/login");
     return true;
   }
-  // console.log(authUser);
+
   return (
     <>
       <Head>

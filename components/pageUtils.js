@@ -68,3 +68,7 @@ export const BouncyDiv = styled.div`
   animation-delay: -0.5s;
   animation-duration: 0.3s;
 `;
+
+export function classNames(...classes) {
+  return classes.filter(Boolean).join(" ");
+}

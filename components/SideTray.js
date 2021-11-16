@@ -9,7 +9,10 @@ import { BsImage, BsCircleFill } from "react-icons/bs";
 import { BiText } from "react-icons/bi";
 import { SketchPicker } from "react-color";
 import { useCard } from "@/utils/cardContext";
+import { useAuth } from "@/utils/auth";
 import RemoveCardModal from "./RemoveCardModal";
+import { storage } from "@/utils/firebase";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 export default function SideTray() {
   const {
@@ -24,12 +27,13 @@ export default function SideTray() {
     cardMedia,
     updateMedia,
   } = useCard();
+  const { authUser } = useAuth();
 
   const [opacity, setOpacity] = useState(30);
   const [mode, setMode] = useState(null);
 
   const [mediaState, setMediaState] = useState({});
-
+  const [file, setFile] = useState(null);
   const opacityHandler = (event, newValue) => {
     setOpacity(newValue);
   };
@@ -48,8 +52,10 @@ export default function SideTray() {
   };
 
   const handleChange = (e) => {
-    // console.log(e.currentTarget.files[0]);
+    console.log(e.currentTarget.files[0]);
+    setFile(e.target.files[0]);
     const obj = URL.createObjectURL(e.currentTarget.files[0]);
+    // setFile(obj);
     setMediaState((prevState) => ({
       ...prevState,
       image: obj,
@@ -58,9 +64,57 @@ export default function SideTray() {
 
   const handleSave = () => {
     cardSaveHandler();
-    !_.isEmpty(mediaState) && updateMedia(mediaState);
-    setMediaState({});
-    setCardMode(null);
+
+    if (file) {
+      handleUpload();
+    } else {
+      !_.isEmpty(mediaState) && updateMedia(mediaState);
+      setMediaState({});
+      setCardMode(null);
+    }
+  };
+
+  const handleUpload = async (e) => {
+    e?.preventDefault();
+
+    const storageRef = ref(storage, `/${authUser?.uid}/${activeCard?.i}`);
+    // const storageRef = ref(storage, `/${authUser?.uid}/${authUser?.uid}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log("Upload is " + progress + "% done");
+        switch (snapshot.state) {
+          case "paused":
+            console.log("Upload is paused");
+            break;
+          case "running":
+            console.log("Upload is running");
+            break;
+        }
+      },
+      (error) => {
+        // Handle unsuccessful uploads
+        console.log(error);
+      },
+      () => {
+        // Handle successful uploads
+        getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+          console.log("File available at", url);
+          setFile(null);
+          const mediaStateSpread = {
+            ...mediaState,
+            image: url,
+          };
+
+          updateMedia(mediaStateSpread);
+          setMediaState({});
+          setCardMode(null);
+        });
+      }
+    );
   };
 
   return (
@@ -180,7 +234,7 @@ export default function SideTray() {
             Duplicate
           </button>
           <button
-            onClick={() => removingModalHandler(activeCard?.i)}
+            onClick={() => removingModalHandler(activeCard)}
             className="w-1/2 py-1.5 rounded focus:outline-none bg-red-600 text-white flex items-center justify-center"
           >
             <FiTrash className="w-4 h-4 mr-1.5" /> Delete

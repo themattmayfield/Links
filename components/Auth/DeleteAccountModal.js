@@ -1,6 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
-import { AuthInput, AuthError, AuthShowPassword } from "./AuthPageUtils";
+import { AuthInput } from "./AuthPageUtils";
 import { CgSpinner } from "react-icons/cg";
 import { useAuth } from "@/utils/auth";
 
@@ -8,7 +8,7 @@ const DeleteAccountModal = ({ deleteModalIsOpen, deleteModalHandler }) => {
   const { user, error, setError, deleteAccount, emailAuthProv } = useAuth();
 
   const [disableDeleteButton, setDisableDeleteButton] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+
   const [password, setPassword] = useState("");
 
   const permanentlyDeleteAccountHandler = () => {
@@ -75,21 +75,14 @@ const DeleteAccountModal = ({ deleteModalIsOpen, deleteModalHandler }) => {
               <div className="pt-2">
                 <AuthInput
                   title="Password"
-                  type={showPassword ? "text" : "password"}
-                  type={showPassword ? "text" : "password"}
+                  type="password"
                   name="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   id="password"
                 />
-                <AuthError error={error} />
               </div>
-              <div className="pt-2">
-                <AuthShowPassword
-                  onClick={() => setShowPassword((prevState) => !prevState)}
-                  showPassword={showPassword}
-                />
-              </div>
+
               <div className="mt-4 sm:flex items-center sm:justify-end sm:space-x-2 space-y-2 sm:space-y-0">
                 <div>
                   <button

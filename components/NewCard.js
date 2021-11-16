@@ -20,7 +20,9 @@ export default function NewCard({ card }) {
   };
 
   const onClick = () => {
-    // console.log("click is triggered");
+    if (jiggleMode === false) {
+      editModeHandler(card);
+    }
     // setClickCount(clickCount + 1);
   };
 
@@ -32,16 +34,12 @@ export default function NewCard({ card }) {
 
   return (
     <>
-      <div
-        style={{ cursor: "pointer" }}
-        onClick={!jiggleMode ? () => editModeHandler(card) : null}
-        className="relative w-full h-full"
-      >
+      <button style={{ cursor: "pointer" }} className="relative w-full h-full">
         {jiggleMode && (
           <>
             <div className="absolute w-4 h-4 bg-black rounded-full -left-1 -top-1"></div>
             <MdRemoveCircle
-              onClick={() => removingModalHandler(card?.i)}
+              onClick={() => removingModalHandler(card)}
               className="absolute w-7 h-7 text-gray-500 -left-2 -top-3 cursor-pointer"
             />
           </>
@@ -57,7 +55,7 @@ export default function NewCard({ card }) {
             "w-full cursor-pointer h-full rounded-xl flex flex-col items-center justify-center bg-cover bg-center"
           }
         ></button>
-      </div>
+      </button>
     </>
   );
 }

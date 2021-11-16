@@ -50,10 +50,10 @@ function Header() {
             onClick={() => signout()}
             className="xs:hidden w-7 h-7 mr-2 rounded-full bg-trustBlue cursor-pointer grid place-items-center text-white"
           >
-            {authUser.email[0]}
+            {authUser?.email[0]}
           </div>
           <p onClick={() => signout()} className="text-xs hidden xs:block">
-            {authUser.email}
+            {authUser?.email}
           </p>
         </div>
         {/* </Link> */}
