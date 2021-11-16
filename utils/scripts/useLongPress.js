@@ -13,7 +13,7 @@ const useLongPress = (
     (event) => {
       if (shouldPreventDefault && event.target) {
         event.target.addEventListener("touchend", preventDefault, {
-          passive: false
+          passive: false,
         });
         target.current = event.target;
       }
@@ -42,7 +42,7 @@ const useLongPress = (
     onTouchStart: (e) => start(e),
     onMouseUp: (e) => clear(e),
     onMouseLeave: (e) => clear(e, false),
-    onTouchEnd: (e) => clear(e)
+    onTouchEnd: (e) => clear(e),
   };
 };
 

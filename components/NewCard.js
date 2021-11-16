@@ -20,21 +20,25 @@ export default function NewCard({ card }) {
   };
 
   const onClick = () => {
-    if (jiggleMode === false) {
-      editModeHandler(card);
-    }
     // setClickCount(clickCount + 1);
   };
 
   const defaultOptions = {
-    shouldPreventDefault: true,
+    shouldPreventDefault: false,
     delay: 500,
   };
+
   const longPressEvent = useLongPress(onLongPress, onClick, defaultOptions);
 
   return (
     <>
-      <button style={{ cursor: "pointer" }} className="relative w-full h-full">
+      <div
+        onClick={(e) => {
+          !jiggleMode && editModeHandler(card);
+        }}
+        style={{ cursor: "pointer" }}
+        className="relative w-full h-full"
+      >
         {jiggleMode && (
           <>
             <div className="absolute w-4 h-4 bg-black rounded-full -left-1 -top-1"></div>
@@ -55,7 +59,7 @@ export default function NewCard({ card }) {
             "w-full cursor-pointer h-full rounded-xl flex flex-col items-center justify-center bg-cover bg-center"
           }
         ></button>
-      </button>
+      </div>
     </>
   );
 }
