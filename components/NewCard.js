@@ -33,7 +33,7 @@ export default function NewCard({ card }) {
   return (
     <>
       <div
-        onClick={(e) => {
+        onClick={() => {
           !jiggleMode && editModeHandler(card);
         }}
         style={{ cursor: "pointer" }}

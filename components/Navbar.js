@@ -1,28 +1,30 @@
 import Link from "next/link";
 import { useAuth } from "@/utils/auth";
-
-const navItems = [
-  {
-    id: "0",
-    label: "Links",
-  },
-  {
-    id: "1",
-    label: "Themes",
-  },
-  // {
-  //   id: "2",
-  //   label: "Settings",
-  // },
-  {
-    id: "3",
-    label: "PRO",
-    link: "/pro",
-  },
-];
+import { createCheckoutSession } from "@/utils/db";
 
 function Header() {
-  const { authUser, signout } = useAuth();
+  const { authUser, signout, user } = useAuth();
+
+  const navItems = [
+    {
+      id: "0",
+      label: "Links",
+    },
+    {
+      id: "1",
+      label: "Themes",
+    },
+    // {
+    //   id: "2",
+    //   label: "Settings",
+    // },
+    {
+      id: "3",
+      label: "PRO",
+      link: () => createCheckoutSession(user),
+    },
+  ];
+
   return (
     <header className="w-full bg-white border-b border-gray-200">
       <div className="border-t-[5px] border-trustBlue" />
@@ -35,6 +37,7 @@ function Header() {
           </Link>
           {navItems.map((item) => (
             <p
+              onClick={() => item.link()}
               key={item.id}
               className="text-base font-light hover:underline text-black cursor-pointer"
             >

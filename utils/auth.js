@@ -14,6 +14,7 @@ import {
 } from "firebase/auth";
 import { errorCodes } from "./errorCodes";
 import { Toast } from "@/components/pageUtils";
+import { getUser, getStripeAccount } from "@/utils/db";
 
 const authContext = createContext();
 
@@ -127,9 +128,17 @@ function useProvideAuth() {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        setUser(user);
+        // getStripeAccount("cus_KbpIq5oTKQ13CZ")
+        //   .then((result) => {
+        //     console.log(result);
+        //   })
+        //   .catch((err) => console.log(err));
+        formatUser(user).then((formattedUser) => {
+          console.log(formattedUser);
+          setUser(formattedUser);
+        });
       } else {
         setUser(false);
       }
@@ -155,15 +164,24 @@ function useProvideAuth() {
   };
 }
 
+const getStripeRole = async () => {
+  await firebase.auth().currentUser.getIdToken(true);
+  const decodedToken = await firebase.auth().currentUser.getIdTokenResult();
+
+  return decodedToken.claims.stripeRole || "free";
+};
+
 const formatUser = async (user) => {
   const token = await user?.getIdToken();
+  const dbUser = await getUser(user.uid);
+
   return {
+    ...dbUser?.user,
     uid: user?.uid,
     email: user?.email,
-    // name: user?.displayName,
     provider: user?.providerData[0]?.providerId,
-    // photoUrl: user?.photoURL,
     token,
     emailVerified: user?.emailVerified,
+    // stripeRole: await getStripeRole(),
   };
 };

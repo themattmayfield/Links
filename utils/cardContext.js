@@ -28,7 +28,7 @@ export const useCard = () => {
 // };
 
 function useProvideCard() {
-  const { authUser } = useAuth();
+  const { authUser, user } = useAuth();
 
   const [activeCard, setActiveCard] = useState(null);
   const [cardMode, setCardMode] = useState(null);
@@ -93,10 +93,6 @@ function useProvideCard() {
     if (cardMedia[activeCard?.i]?.image) {
       deleteFile(`/${authUser?.uid}/${activeCard?.i}`)
         .then(() => {
-          // const cardMediaSpread = { ...cardMedia };
-          // cardMediaSpread[activeCard?.i] = null;
-          // const newMedia = _.omitBy(cardMediaSpread, _.isNil);
-          // setCardMedia(newMedia);
           deleteCardUI();
         })
         .catch((err) => {
@@ -146,7 +142,7 @@ function useProvideCard() {
       const docRef = doc(db, "users", authUser?.uid);
       await setDoc(
         docRef,
-        { cardMedia: cleanMedia, layout: cleanLayout },
+        { cardMedia: cleanMedia, layout: cleanLayout, user: user },
         { merge: false }
       );
 
