@@ -124,10 +124,6 @@ export default function SideTray() {
     );
   };
 
-  const customImgLoader = ({ src }) => {
-    return `${src}`;
-  };
-
   return (
     <>
       <RemoveCardModal removeCardHandler={removeCardHandler} />
@@ -150,13 +146,27 @@ export default function SideTray() {
               mediaState?.backgroundColor ||
               cardMedia[activeCard?.i]?.backgroundColor ||
               "rgba(156, 163, 175)",
-            backgroundImage: `url(${
-              mediaState?.image || cardMedia[activeCard?.i]?.image || null
-            })`,
+            // backgroundImage: `url(${
+            //   mediaState?.image || cardMedia[activeCard?.i]?.image || null
+            // })`,
           }}
-          className={`${activeCard?.w == 1 ? "w-[195px] " : "w-[400px]"}   
+          className={`
+          // ${activeCard?.w == 1 ? "w-[195px] " : "w-[400px]"} 
+          ${activeCard?.w == 1 ? "w-full" : "w-full"} 
           h-[170px] mb-4 rounded-xl flex flex-col items-center justify-center bg-cover bg-center relative`}
-        ></div>
+        >
+          {mediaState?.image ||
+            (cardMedia[activeCard?.i]?.image && (
+              <Image
+                // onLoad={() => console.log("loaded", card.i)}
+                className="rounded-xl"
+                alt="Mountains"
+                src={mediaState?.image || cardMedia[activeCard?.i]?.image}
+                layout="fill"
+                objectFit="cover"
+              />
+            ))}
+        </div>
 
         <div className="flex items-center justify-between w-full space-x-2 mb-6">
           <button

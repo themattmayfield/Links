@@ -15,7 +15,7 @@ export default function Settings() {
 
   return (
     <Layout>
-      <div className="max-w-[650px] mx-auto w-full px-6">
+      <div className="max-w-[650px] mx-auto w-full px-4">
         <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg mt-12 ">
           <div className="flex items-center justify-between px-6 bg-[#F7FAFC] py-5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
             <p>Account</p>

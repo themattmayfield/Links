@@ -17,10 +17,6 @@ export default function Cards() {
 
   const { jiggleMode } = useJiggle();
 
-  if (!layouts) {
-    return <p>...LOADING</p>;
-  }
-
   return (
     <>
       {cardMode === "remove" ? <RemoveCardModal /> : null}

@@ -3,6 +3,7 @@ import useLongPress from "../utils/scripts/useLongPress";
 import { MdRemoveCircle } from "react-icons/md";
 import { useCard } from "@/utils/cardContext";
 import { useJiggle } from "@/utils/jiggleModeContext";
+import Image from "next/image";
 
 export default function NewCard({ card }) {
   const { removingModalHandler, editModeHandler, cardMedia } = useCard();
@@ -53,12 +54,28 @@ export default function NewCard({ card }) {
           style={{
             backgroundColor:
               cardMedia[card?.i]?.backgroundColor || "rgba(156, 163, 175)",
-            backgroundImage: `url(${cardMedia[card?.i]?.image})`,
+            // backgroundImage: `url(${cardMedia[card?.i]?.image})`,
           }}
           className={
             "w-full cursor-pointer h-full rounded-xl flex flex-col items-center justify-center bg-cover bg-center"
           }
-        ></button>
+        >
+          {cardMedia[card?.i]?.image && (
+            <Image
+              onLoad={() => console.log("loaded", card.i)}
+              className="rounded-xl"
+              alt="Mountains"
+              src={cardMedia[card?.i]?.image}
+              layout="fill"
+              objectFit="cover"
+            />
+          )}
+          {/* <img
+            onLoad={() => console.log("loaded", card.i)}
+            className="rounded-xl  w-full h-full object-cover"
+            src={cardMedia[card?.i]?.image}
+          /> */}
+        </button>
       </div>
     </>
   );
