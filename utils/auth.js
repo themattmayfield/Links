@@ -14,7 +14,7 @@ import {
 } from "firebase/auth";
 import { errorCodes } from "./errorCodes";
 import { Toast } from "@/components/pageUtils";
-import { getUser, getStripeAccount } from "@/utils/db";
+import { getUser, getStripeRole, createUser } from "@/utils/db";
 
 const authContext = createContext();
 
@@ -59,7 +59,9 @@ function useProvideAuth() {
 
   const signup = (email, password) => {
     createUserWithEmailAndPassword(auth, email, password)
-      .then(() => {
+      .then(async ({ user }) => {
+        const formattedUser = await formatUser(user);
+        createUser(formattedUser);
         Router.push("/login");
       })
       .catch((error) => {
@@ -91,10 +93,7 @@ function useProvideAuth() {
 
   const reauthenticateUser = async (credential) => {
     try {
-      const response = await reauthenticateWithCredential(
-        auth.currentUser,
-        credential
-      );
+      await reauthenticateWithCredential(auth.currentUser, credential);
       return { status: true };
     } catch (error) {
       handleError(error);
@@ -130,11 +129,6 @@ function useProvideAuth() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // getStripeAccount("cus_KbpIq5oTKQ13CZ")
-        //   .then((result) => {
-        //     console.log(result);
-        //   })
-        //   .catch((err) => console.log(err));
         formatUser(user).then((formattedUser) => {
           console.log(formattedUser);
           setUser(formattedUser);
@@ -164,17 +158,10 @@ function useProvideAuth() {
   };
 }
 
-const getStripeRole = async () => {
-  await firebase.auth().currentUser.getIdToken(true);
-  const decodedToken = await firebase.auth().currentUser.getIdTokenResult();
-
-  return decodedToken.claims.stripeRole || "free";
-};
-
 const formatUser = async (user) => {
   const token = await user?.getIdToken();
-  const dbUser = await getUser(user.uid);
-
+  const dbUser = await getUser(user?.uid);
+  console.log(dbUser);
   return {
     ...dbUser?.user,
     uid: user?.uid,
@@ -182,6 +169,9 @@ const formatUser = async (user) => {
     provider: user?.providerData[0]?.providerId,
     token,
     emailVerified: user?.emailVerified,
-    // stripeRole: await getStripeRole(),
+    stripeRole:
+      dbUser?.user?.stripeID || user?.stripeID
+        ? await getStripeRole(dbUser?.user?.stripeID)
+        : "Free",
   };
 };

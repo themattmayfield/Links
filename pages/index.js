@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+// import { useState, useEffect } from "react";
 import { useAuth } from "@/utils/auth";
 import Loading from "@/components/Loading";
 import Layout from "@/components/Layout";
@@ -8,15 +8,12 @@ import _ from "lodash";
 import { useOnClickOutside } from "@/utils/hooks";
 import { useJiggle } from "@/utils/jiggleModeContext";
 import { useCard } from "@/utils/cardContext";
-import { getUser, getStripeAccount } from "@/utils/db";
 
 export default function Home() {
-  const { loading, user } = useAuth();
+  const { loading, user, authUser } = useAuth();
   const { jiggleRef, setjiggleMode } = useJiggle();
   const { cardMode } = useCard();
-  useEffect(() => {
-    getStripeAccount();
-  }, []);
+
   useOnClickOutside(jiggleRef, () => {
     !cardMode && setjiggleMode(false);
   });
@@ -28,7 +25,8 @@ export default function Home() {
   return (
     <Layout>
       <PageContainer>
-        <p>{user?.stripeRole || "free"}</p>
+        {/* <p>{user?.stripeRole || "free"}</p> */}
+        <button onClick={() => testButton()}>Test</button>
         <div ref={jiggleRef} className="mx-auto " style={{ maxWidth: "420px" }}>
           <Cards />
         </div>

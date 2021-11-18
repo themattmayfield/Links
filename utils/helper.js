@@ -17,16 +17,3 @@ export const postData = async ({ url, token, data = {} }) => {
 
   return res.json();
 };
-
-// STRIPE
-// export const redirectToCustomerPortal = async () => {
-//     const { access_token } = supabase.auth.session();
-
-//     const { url, error } = await postData({
-//       url: "/api/create-portal-link",
-//       token: access_token,
-//     });
-//     if (error) return alert(error.message);
-
-//     window.location.assign(url);
-//   };

@@ -1,8 +1,15 @@
 import { db } from "./firebase";
 import { stripe } from "./stripe";
-import { doc, setDoc, getDoc } from "firebase/firestore";
-import Router from "next/router";
+import getStripe from "./stripe-client";
+import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+
 import axios from "axios";
+
+export const createUser = async (user) => {
+  console.log(user);
+  const docRef = doc(db, "users", user?.uid);
+  await setDoc(docRef, { user: user });
+};
 
 export const getUser = async (uid) => {
   const docRef = doc(db, "users", uid);
@@ -11,9 +18,6 @@ export const getUser = async (uid) => {
   if (docSnap.exists()) {
     console.log("Document data:", docSnap.data());
     return docSnap.data();
-  } else {
-    // doc.data() will be undefined in this case
-    console.log("No such document!");
   }
 };
 
@@ -27,9 +31,12 @@ export async function createCheckoutSession(user) {
   });
 
   const { session } = await result.json();
-  Router.push(session.url);
+  const stripe = await getStripe();
+  stripe.redirectToCheckout({ sessionId: session.id });
 
-  return { session };
+  // Router.push(session.url);
+
+  // return { session };
 }
 
 export const createOrRetrieveCustomer = async (user) => {
@@ -45,11 +52,8 @@ export const createOrRetrieveCustomer = async (user) => {
     // Now insert the customer ID into our Supabase mapping table.
     try {
       const docRef = doc(db, "users", user?.uid);
-      await setDoc(
-        docRef,
-        { user: { ...user, stripeID: customer.id } },
-        { merge: true }
-      );
+      await updateDoc(docRef, { "user.stripeID": customer.id });
+
       return customer.id;
     } catch (error) {
       console.log(error);
@@ -59,26 +63,33 @@ export const createOrRetrieveCustomer = async (user) => {
   }
 };
 
-export const getStripeAccount = async (uid) => {
+export const getStripeRole = async (uid) => {
   try {
     const { data } = await axios.get(
-      `/api/getStripeAccount?id=cus_KbpIq5oTKQ13CZ`
+      // `/api/getStripeAccount?id=cus_Kc5Ij79LwWhPBo`
+      `/api/getStripeAccount?id=${uid}`
     );
-    console.log(data);
-    // return data
+    // console.log(data);
+    // console.log(data?.subscriptions.data.length);
+    return data?.subscriptions.data.length ? "Pro" : "Free";
   } catch (error) {
     console.error(error);
   }
 };
 
-// export async function goToBillingPortal() {
-//   const functionRef = app
-//     .functions("us-central1")
-//     .httpsCallable("ext-firestore-stripe-subscriptions-createPortalLink");
+export async function goToBillingPortal(user) {
+  try {
+    const result = await fetch("/api/create-portal-link", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user: user }),
+    });
+    const { url } = await result.json();
 
-//   const { data } = await functionRef({
-//     returnUrl: `${window.location.origin}/account`,
-//   });
-
-//   window.location.assign(data.url);
-// }
+    window.location.assign(url);
+  } catch (error) {
+    if (error) return alert(error.message);
+  }
+}

@@ -92,7 +92,14 @@ function useProvideCard() {
   const removeCardHandler = async () => {
     if (cardMedia[activeCard?.i]?.image) {
       deleteFile(`/${authUser?.uid}/${activeCard?.i}`)
-        .then(() => {
+        .then(async () => {
+          const docRef = doc(db, "users", authUser?.uid);
+
+          const createdKey = `cardMedia.${activeCard?.i}`;
+          console.log(createdKey);
+          await updateDoc(docRef, {
+            [createdKey]: deleteField(),
+          });
           deleteCardUI();
         })
         .catch((err) => {
@@ -121,14 +128,6 @@ function useProvideCard() {
   };
 
   const onLayoutChange = async (layout, layouts) => {
-    const cleanMedia = {};
-    _.forEach(cardMedia, (value, key) => {
-      const obj = _.find(layout, { i: key });
-      if (obj) {
-        cleanMedia[key] = value;
-      }
-    });
-
     const cleanLayout = {
       lg: [],
       xxs: [],
@@ -140,11 +139,7 @@ function useProvideCard() {
 
     try {
       const docRef = doc(db, "users", authUser?.uid);
-      await setDoc(
-        docRef,
-        { cardMedia: cleanMedia, layout: cleanLayout, user: user },
-        { merge: false }
-      );
+      await updateDoc(docRef, { layout: cleanLayout });
 
       // console.log("Document written with ID: ", docRef);
     } catch (error) {

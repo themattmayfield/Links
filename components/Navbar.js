@@ -1,24 +1,30 @@
 import Link from "next/link";
 import { useAuth } from "@/utils/auth";
 import { createCheckoutSession } from "@/utils/db";
+import Router from "next/router";
 
 function Header() {
-  const { authUser, signout, user } = useAuth();
+  const { authUser, user } = useAuth();
 
   const navItems = [
     {
+      key: "0",
       id: "0",
       label: "Links",
+      link: () => Router.push("/"),
     },
     {
+      key: "1",
       id: "1",
       label: "Themes",
+      link: () => Router.push("/themes"),
     },
     // {
     //   id: "2",
     //   label: "Settings",
     // },
-    {
+    user?.stripeRole != "Pro" && {
+      key: "3",
       id: "3",
       label: "PRO",
       link: () => createCheckoutSession(user),
@@ -55,7 +61,10 @@ function Header() {
           >
             {authUser?.email[0]}
           </div>
-          <p onClick={() => signout()} className="text-xs hidden xs:block">
+          <p
+            onClick={() => Router.push("/account")}
+            className="text-xs hidden xs:block"
+          >
             {authUser?.email}
           </p>
         </div>

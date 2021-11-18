@@ -6,7 +6,9 @@ export default async (req, res) => {
 
   try {
     const stripe = new Stripe(secret);
-    const account = await stripe.customers.retrieve(id);
+    const account = await stripe.customers.retrieve(id, {
+      expand: ["subscriptions"],
+    });
     return res.status(200).json(account);
   } catch (error) {
     return res.status(401).json({ error: error.message });
