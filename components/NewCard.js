@@ -68,6 +68,7 @@ export default function NewCard({ card }) {
               src={cardMedia[card?.i]?.image}
               layout="fill"
               objectFit="cover"
+              placeholder="blur"
             />
           )}
           {/* <img

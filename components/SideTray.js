@@ -14,7 +14,6 @@ import RemoveCardModal from "./RemoveCardModal";
 import { storage } from "@/utils/firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import Compressor from "compressorjs";
-import Image from "next/image";
 
 export default function SideTray() {
   const {
@@ -124,10 +123,6 @@ export default function SideTray() {
     );
   };
 
-  const customImgLoader = ({ src }) => {
-    return `${src}`;
-  };
-
   return (
     <>
       <RemoveCardModal removeCardHandler={removeCardHandler} />
@@ -154,7 +149,9 @@ export default function SideTray() {
               mediaState?.image || cardMedia[activeCard?.i]?.image || null
             })`,
           }}
-          className={`${activeCard?.w == 1 ? "w-[195px] " : "w-[400px]"}   
+          className={`${
+            activeCard?.w == 1 ? "w-[195px] " : "w-full sm:w-[400px]"
+          }   
           h-[170px] mb-4 rounded-xl flex flex-col items-center justify-center bg-cover bg-center relative`}
         ></div>
 
