@@ -1,7 +1,5 @@
 import "../style.css";
 import "react-grid-layout/css/styles.css";
-import "react-resizable/css/styles.css";
-import "react-image-crop/dist/ReactCrop.css";
 import { AuthProvider } from "@/utils/auth";
 import { CardProvider } from "@/utils/cardContext";
 import { ToastContainer } from "react-toastify";

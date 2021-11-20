@@ -1,6 +1,6 @@
 import SlidingPane from "react-sliding-pane";
 import "react-sliding-pane/dist/react-sliding-pane.css";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Slider from "@material-ui/core/Slider";
@@ -14,6 +14,7 @@ import RemoveCardModal from "./RemoveCardModal";
 import { storage } from "@/utils/firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import Compressor from "compressorjs";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 export default function SideTray() {
   const {
@@ -29,6 +30,8 @@ export default function SideTray() {
     updateMedia,
   } = useCard();
   const { authUser } = useAuth();
+
+  const inputEl = useRef(null);
 
   const [opacity, setOpacity] = useState(30);
   const [mode, setMode] = useState(null);
@@ -127,58 +130,17 @@ export default function SideTray() {
     <>
       <RemoveCardModal removeCardHandler={removeCardHandler} />
       <SlidingPane
-        className="some-custom-class max-w-lg"
+        // hideHeader
+        className="some-custom-class max-w-lg "
         overlayClassName="some-custom-overlay-class"
         isOpen={cardMode === "edit"}
-        // title="Edit"
-        // subtitle="Optional subtitle."
         width="80%"
         onRequestClose={() => {
-          // triggered on "<" on left top click or on outside click
           setMediaState({});
           editModeHandler();
         }}
       >
-        <div
-          style={{
-            backgroundColor:
-              mediaState?.backgroundColor ||
-              cardMedia[activeCard?.i]?.backgroundColor ||
-              "rgba(156, 163, 175)",
-            backgroundImage: `url(${
-              mediaState?.image || cardMedia[activeCard?.i]?.image || null
-            })`,
-          }}
-          className={`${
-            activeCard?.w == 1 ? "w-[195px] " : "w-full sm:w-[400px]"
-          }   
-          h-[170px] mb-4 rounded-xl flex flex-col items-center justify-center bg-cover bg-center relative`}
-        ></div>
-
-        <div className="flex items-center justify-between w-full space-x-2 mb-6">
-          <button
-            onClick={() => setSize(1)}
-            className={`${
-              activeCard?.w == 1
-                ? "bg-indigo-200 text-gray-600 hover:bg-indigo-300"
-                : "bg-transparent text-gray-600 hover:bg-gray-50"
-            } w-1/2 py-1.5 rounded focus:outline-none border border-gray-400 transition duration-300 ease-in-out`}
-          >
-            Half
-          </button>
-          <button
-            onClick={() => setSize(2)}
-            className={`${
-              activeCard?.w == 2
-                ? "bg-indigo-200 text-gray-600 hover:bg-indigo-300"
-                : "bg-transparent text-gray-600 hover:bg-gray-50"
-            } w-1/2 py-1.5 rounded focus:outline-none border border-gray-400 transition duration-300 ease-in-out`}
-          >
-            Full
-          </button>
-        </div>
-
-        <div className="flex items-center justify-around mb-10">
+        <div className="flex items-center justify-around pb-4 mb-4 border-b border-gray-300">
           <label>
             <input
               className="hidden"
@@ -190,20 +152,105 @@ export default function SideTray() {
             />
             <BsImage
               // onClick={() => setMode("image")}
-              className="w-10 h-10 flex items-center justify-center md:w-32 md:h-32 text-gray-700 cursor-pointer"
+              className="w-10 h-10 flex items-center justify-center text-gray-700 cursor-pointer"
             />
           </label>
 
           <BsCircleFill
             style={{ color: activeCard?.backgroundColor || "purple" }}
             onClick={() => setMode("color")}
-            className="w-10 h-10 flex items-center justify-center md:w-32 md:h-32 cursor-pointer"
+            className="w-10 h-10 flex items-center justify-center cursor-pointer"
           />
           <BiText
             onClick={() => setMode("text")}
-            className="w-10 h-10 flex items-center justify-center md:w-32 md:h-32 text-gray-900 cursor-pointer"
+            className="w-10 h-10 flex items-center justify-center text-gray-900 cursor-pointer"
           />
         </div>
+
+        <TransformWrapper
+          doubleClick={{ disabled: true }}
+          wheel={{ step: "0.97" }}
+          minScale={0.1}
+          centerZoomedOut={true}
+          ref={inputEl}
+        >
+          {({ zoomIn, zoomOut, resetTransform }) => (
+            <>
+              <div className="pb-4 space-x-2">
+                <button
+                  className="bg-gray-400 h-8 px-2  rounded text-gray-900"
+                  onClick={() => {
+                    zoomIn();
+                    console.log(inputEl);
+                  }}
+                >
+                  <p>Zoom In +</p>
+                </button>
+                <button
+                  className="bg-gray-400 h-8 px-2  rounded text-gray-900"
+                  onClick={() => {
+                    zoomOut();
+                    console.log(inputEl);
+                  }}
+                >
+                  <p>Zoom Out -</p>
+                </button>
+                <button
+                  className="bg-gray-400 h-8 px-2  rounded text-gray-900"
+                  onClick={() => {
+                    resetTransform();
+                    console.log(inputEl);
+                  }}
+                >
+                  <p>Reset x</p>
+                </button>
+              </div>
+              <div
+                style={{
+                  backgroundColor:
+                    mediaState?.backgroundColor ||
+                    cardMedia[activeCard?.i]?.backgroundColor ||
+                    "rgba(156, 163, 175)",
+                }}
+                className={`${
+                  activeCard?.w == 1 ? "w-[195px] " : "w-full sm:w-[400px]"
+                } rounded-xl`}
+              >
+                <TransformComponent
+                  wrapperStyle={{
+                    width: "100%",
+                    height: "170px",
+                  }}
+                >
+                  <div
+                    style={{
+                      backgroundImage: `url(${
+                        mediaState?.image ||
+                        cardMedia[activeCard?.i]?.image ||
+                        null
+                      })`,
+                    }}
+                    className={`
+                    ${activeCard?.w == 1 ? "w-[195px] " : "w-full sm:w-[400px]"}
+                  h-[170px] rounded-xl bg-contain bg-center bg-no-repeat relative`}
+                  ></div>
+                </TransformComponent>
+              </div>
+            </>
+          )}
+        </TransformWrapper>
+
+        <button
+          onClick={() => (activeCard?.w == 1 ? setSize(2) : setSize(1))}
+          className={`${
+            activeCard?.w == 1
+              ? "bg-indigo-200 text-gray-600 hover:bg-indigo-300"
+              : "bg-transparent text-gray-600 hover:bg-gray-50"
+          } w-full py-1.5 rounded focus:outline-none border border-gray-400 transition duration-300 ease-in-out mb-6`}
+        >
+          Switch to {activeCard?.w == 1 ? "full card" : "half card"}
+        </button>
+
         <div>
           {/* {mode == 'image' && <SketchPicker />} */}
           {mode == "color" && (
@@ -237,9 +284,6 @@ export default function SideTray() {
         </div>
 
         <div className="flex w-full justify-between items-center space-x-2 mb-2">
-          <button className="w-1/2 py-1.5 rounded focus:outline-none bg-black bg-opacity-50 text-white">
-            Duplicate
-          </button>
           <button
             onClick={() => removingModalHandler(activeCard)}
             className="w-1/2 py-1.5 rounded focus:outline-none bg-red-600 text-white flex items-center justify-center"
@@ -249,7 +293,7 @@ export default function SideTray() {
         </div>
         <button
           onClick={handleSave}
-          className="w-full py-1.5 rounded focus:outline-none bg-indigo-700 text-white"
+          className="w-full py-1.5 rounded focus:outline-none bg-indigo-700 text-white "
         >
           Save
         </button>
