@@ -30,7 +30,10 @@ const testButton = () => {
     redirect: "follow",
   };
 
-  fetch("http://185.176.42.51/action/users/register", requestOptions)
+  fetch(
+    "https://api-test.legendaryapplications.com/action/users/register",
+    requestOptions
+  )
     .then((response) => response.text())
     .then((result) => console.log(result))
     .catch((error) => console.log("error", error));
