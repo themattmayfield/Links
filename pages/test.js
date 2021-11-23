@@ -34,7 +34,7 @@ const testButton = () => {
     "https://api-test.legendaryapplications.com/action/users/register",
     requestOptions
   )
-    .then((response) => response.text())
+    .then((response) => response.json())
     .then((result) => console.log(result))
     .catch((error) => console.log("error", error));
 };
