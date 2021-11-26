@@ -20,7 +20,8 @@ export default function Cards() {
   return (
     <>
       {cardMode === "remove" ? <RemoveCardModal /> : null}
-      {cardMode === "edit" ? <SideTray /> : null}
+
+      <SideTray />
       <div className="px-2">
         <button
           onClick={() => addCardHandler()}

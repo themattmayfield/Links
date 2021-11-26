@@ -1,83 +1,83 @@
-/* This example requires Tailwind CSS v2.0+ */
-import { Fragment, useState } from "react";
-import { Dialog, Transition } from "@headlessui/react";
-import { XIcon } from "@heroicons/react/outline";
+import React, { useState } from "react";
+import useLongPress from "../utils/scripts/useLongPress";
+import { MdRemoveCircle } from "react-icons/md";
+import { useCard } from "@/utils/cardContext";
+import { useJiggle } from "@/utils/jiggleModeContext";
+import Image from "next/image";
 
-export default function Example() {
-  const [open, setOpen] = useState(true);
+export default function NewCard({ card }) {
+  const { removingModalHandler, editModeHandler, cardMedia } = useCard();
+  const { jiggleMode, setjiggleMode } = useJiggle();
+
+  const [longPressCount, setlongPressCount] = useState(0);
+  const [clickCount, setClickCount] = useState(0);
+
+  const onLongPress = () => {
+    if (!jiggleMode) {
+      // console.log("longpress is triggered");
+      setlongPressCount(longPressCount + 1);
+      setjiggleMode(true);
+    }
+  };
+
+  const onClick = () => {
+    // setClickCount(clickCount + 1);
+  };
+
+  const defaultOptions = {
+    shouldPreventDefault: false,
+    delay: 500,
+  };
+
+  const longPressEvent = useLongPress(onLongPress, onClick, defaultOptions);
 
   return (
-    <Transition.Root show={open} as={Fragment}>
-      <Dialog
-        as="div"
-        className="fixed inset-0 overflow-hidden"
-        onClose={setOpen}
+    <>
+      <div
+        onClick={() => {
+          !jiggleMode && editModeHandler(card);
+        }}
+        style={{ cursor: "pointer" }}
+        className="relative w-full h-full"
       >
-        <div className="absolute inset-0 overflow-hidden">
-          <Transition.Child
-            as={Fragment}
-            enter="ease-in-out duration-500"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in-out duration-500"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <Dialog.Overlay className="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-          </Transition.Child>
-          <div className="fixed inset-y-0 right-0 pl-10 max-w-full flex">
-            <Transition.Child
-              as={Fragment}
-              enter="transform transition ease-in-out duration-500 sm:duration-700"
-              enterFrom="translate-x-full"
-              enterTo="translate-x-0"
-              leave="transform transition ease-in-out duration-500 sm:duration-700"
-              leaveFrom="translate-x-0"
-              leaveTo="translate-x-full"
-            >
-              <div className="relative w-screen max-w-3xl">
-                <Transition.Child
-                  as={Fragment}
-                  enter="ease-in-out duration-500"
-                  enterFrom="opacity-0"
-                  enterTo="opacity-100"
-                  leave="ease-in-out duration-500"
-                  leaveFrom="opacity-100"
-                  leaveTo="opacity-0"
-                >
-                  <div className="absolute top-0 left-0 -ml-8 pt-4 pr-2 flex sm:-ml-10 sm:pr-4">
-                    <button
-                      type="button"
-                      className="rounded-md text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
-                      onClick={() => setOpen(false)}
-                    >
-                      <span className="sr-only">Close panel</span>
-                      <XIcon className="h-12 w-12" aria-hidden="true" />
-                    </button>
-                  </div>
-                </Transition.Child>
-                <div className="h-full flex flex-col py-6 bg-white shadow-xl overflow-y-scroll">
-                  <div className="px-4 sm:px-6">
-                    <Dialog.Title className="text-lg font-medium text-gray-900">
-                      Panel title
-                    </Dialog.Title>
-                  </div>
-                  <div className="mt-6 relative flex-1 px-4 sm:px-6">
-                    {/* Replace with your content */}
-                    <div className="absolute inset-0 px-4 sm:px-6">
-                      <div
-                        className="h-full border-2 border-dashed border-gray-200"
-                        aria-hidden="true"
-                      />
-                    </div>
-                    {/* /End replace */}
-                  </div>
-                </div>
-              </div>
-            </Transition.Child>
-          </div>
-        </div>
-      </Dialog>
-    </Transition.Root>
+        {jiggleMode && (
+          <>
+            <div className="absolute w-4 h-4 bg-black rounded-full -left-1 -top-1"></div>
+            <MdRemoveCircle
+              onClick={() => removingModalHandler(card)}
+              className="absolute w-7 h-7 text-gray-500 -left-2 -top-3 cursor-pointer"
+            />
+          </>
+        )}
+        <button
+          {...longPressEvent}
+          style={{
+            backgroundColor:
+              cardMedia[card?.i]?.backgroundColor || "rgba(156, 163, 175)",
+            // backgroundImage: `url(${cardMedia[card?.i]?.image})`,
+          }}
+          className={
+            "w-full cursor-pointer h-full rounded-xl flex flex-col items-center justify-center bg-cover bg-center"
+          }
+        >
+          {cardMedia[card?.i]?.image && (
+            <Image
+              onLoad={() => console.log("loaded", card.i)}
+              className="rounded-xl"
+              alt="Mountains"
+              src={cardMedia[card?.i]?.image}
+              layout="fill"
+              objectFit="cover"
+              placeholder="blur"
+            />
+          )}
+          {/* <img
+            onLoad={() => console.log("loaded", card.i)}
+            className="rounded-xl  w-full h-full object-cover"
+            src={cardMedia[card?.i]?.image}
+          /> */}
+        </button>
+      </div>
+    </>
   );
 }

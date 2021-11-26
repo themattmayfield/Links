@@ -11,7 +11,6 @@ import { useJiggle } from "@/utils/jiggleModeContext";
 import { useCard } from "@/utils/cardContext";
 
 export default function Home() {
-  const { loading, user, authUser } = useAuth();
   const { jiggleRef, setjiggleMode } = useJiggle();
   const { cardMode, layouts } = useCard();
 
@@ -19,7 +18,7 @@ export default function Home() {
     !cardMode && setjiggleMode(false);
   });
 
-  if (loading || !layouts) {
+  if (!layouts) {
     return (
       <Layout>
         <PageContainer>

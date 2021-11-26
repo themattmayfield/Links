@@ -1,22 +1,30 @@
-import SlidingPane from "react-sliding-pane";
-import "react-sliding-pane/dist/react-sliding-pane.css";
-import { useState, useRef } from "react";
-import Grid from "@material-ui/core/Grid";
-import Typography from "@material-ui/core/Typography";
-import Slider from "@material-ui/core/Slider";
-import { FiTrash } from "react-icons/fi";
-import { BsImage, BsCircleFill } from "react-icons/bs";
-import { BiText } from "react-icons/bi";
-import { SketchPicker } from "react-color";
+/* This example requires Tailwind CSS v2.0+ */
+import { Fragment, useState, useRef, useEffect } from "react";
+import { Dialog, Transition } from "@headlessui/react";
 import { useCard } from "@/utils/cardContext";
+import { TiChevronLeft } from "react-icons/ti";
+import {
+  BsImage,
+  BsCircleFill,
+  BsFillGrid1X2Fill,
+  BsCheck,
+} from "react-icons/bs";
+import { BiText } from "react-icons/bi";
+import { VscColorMode } from "react-icons/vsc";
+import { FaTrash } from "react-icons/fa";
+import { FcAddImage, FcRemoveImage } from "react-icons/fc";
+import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
+import { GrPowerReset } from "react-icons/gr";
+import { SketchPicker } from "react-color";
 import { useAuth } from "@/utils/auth";
-import RemoveCardModal from "./RemoveCardModal";
 import { storage } from "@/utils/firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import Compressor from "compressorjs";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import Slider, { Range } from "rc-slider";
+import "rc-slider/assets/index.css";
 
-export default function SideTray() {
+export default function Example() {
   const {
     activeCard,
     setActiveCard,
@@ -24,29 +32,36 @@ export default function SideTray() {
     setCardMode,
     editModeHandler,
     cardSaveHandler,
-    removeCardHandler,
     removingModalHandler,
     cardMedia,
     updateMedia,
+    deleteImageHandler,
   } = useCard();
   const { authUser } = useAuth();
 
-  const inputEl = useRef(null);
+  const zoomPanPinchRef = useRef(null);
 
-  const [opacity, setOpacity] = useState(30);
-  const [mode, setMode] = useState(null);
+  // const [opacity, setOpacity] = useState(30);
+  // const [mode, setMode] = useState(null);
 
   const [mediaState, setMediaState] = useState({});
   const [file, setFile] = useState(null);
-  const opacityHandler = (event, newValue) => {
-    setOpacity(newValue);
-  };
 
-  const setSize = (size) => {
-    const newCard = { ...activeCard };
-    newCard.w = size;
-    setActiveCard(newCard);
-  };
+  useEffect(() => {
+    let isActive = true;
+    setMediaState((prevState) => ({
+      ...prevState,
+      image: cardMedia[activeCard?.i]?.image || null,
+      backgroundColor:
+        cardMedia[activeCard?.i]?.backgroundColor || "rgba(156, 163, 175)",
+      size: activeCard?.w,
+      pinchPanZoom: cardMedia[activeCard?.i]?.pinchPanZoom || null,
+    }));
+
+    return () => {
+      isActive = false;
+    };
+  }, [cardMedia, activeCard]);
 
   const handleColorChange = (color) => {
     setMediaState((prevState) => ({
@@ -72,15 +87,23 @@ export default function SideTray() {
   };
 
   const handleSave = () => {
-    cardSaveHandler();
+    cardSaveHandler(mediaState);
 
     if (file) {
       handleUpload();
-    } else {
-      !_.isEmpty(mediaState) && updateMedia(mediaState);
-      setMediaState({});
-      setCardMode(null);
+      return true;
     }
+
+    // delete image but not card
+    if (!mediaState?.image && cardMedia[activeCard?.i]?.image) {
+      deleteImageHandler(mediaState);
+      // return true;
+    }
+
+    updateMedia(mediaState);
+    // !_.isEmpty(mediaState) && updateMedia(mediaState);
+    setMediaState({});
+    setCardMode(null);
   };
 
   const handleUpload = async (e) => {
@@ -126,178 +149,258 @@ export default function SideTray() {
     );
   };
 
+  const handleImageRemove = () => {
+    setMediaState((prevState) => ({
+      ...prevState,
+      image: null,
+    }));
+  };
+
+  const handlePinchPanZoom = (data) => {
+    // console.log(data.current.state);
+    const dataState = data.current.state;
+    console.log(dataState);
+    setMediaState((prevState) => ({
+      ...prevState,
+      pinchPanZoom: dataState,
+    }));
+  };
+
   return (
-    <>
-      <RemoveCardModal removeCardHandler={removeCardHandler} />
-      <SlidingPane
-        // hideHeader
-        className="some-custom-class max-w-lg "
-        overlayClassName="some-custom-overlay-class"
-        isOpen={cardMode === "edit"}
-        width="80%"
-        onRequestClose={() => {
+    <Transition.Root show={cardMode === "edit"} as={Fragment}>
+      <Dialog
+        as="div"
+        className="fixed inset-0 overflow-hidden"
+        onClose={() => {
           setMediaState({});
           editModeHandler();
         }}
       >
-        <div className="flex items-center justify-around pb-4 mb-4 border-b border-gray-300">
-          <label>
-            <input
-              className="hidden"
-              type="file"
-              onChange={(e) => {
-                handleChange(e);
-                setMode("image");
-              }}
-            />
-            <BsImage
-              // onClick={() => setMode("image")}
-              className="w-10 h-10 flex items-center justify-center text-gray-700 cursor-pointer"
-            />
-          </label>
-
-          <BsCircleFill
-            style={{ color: activeCard?.backgroundColor || "purple" }}
-            onClick={() => setMode("color")}
-            className="w-10 h-10 flex items-center justify-center cursor-pointer"
-          />
-          <BiText
-            onClick={() => setMode("text")}
-            className="w-10 h-10 flex items-center justify-center text-gray-900 cursor-pointer"
-          />
-        </div>
-
-        <TransformWrapper
-          doubleClick={{ disabled: true }}
-          wheel={{ step: "0.97" }}
-          minScale={0.1}
-          centerZoomedOut={true}
-          ref={inputEl}
-        >
-          {({ zoomIn, zoomOut, resetTransform }) => (
-            <>
-              <div className="pb-4 space-x-2">
-                <button
-                  className="bg-gray-400 h-8 px-2  rounded text-gray-900"
-                  onClick={() => {
-                    zoomIn();
-                    console.log(inputEl);
-                  }}
-                >
-                  <p>Zoom In +</p>
-                </button>
-                <button
-                  className="bg-gray-400 h-8 px-2  rounded text-gray-900"
-                  onClick={() => {
-                    zoomOut();
-                    console.log(inputEl);
-                  }}
-                >
-                  <p>Zoom Out -</p>
-                </button>
-                <button
-                  className="bg-gray-400 h-8 px-2  rounded text-gray-900"
-                  onClick={() => {
-                    resetTransform();
-                    console.log(inputEl);
-                  }}
-                >
-                  <p>Reset x</p>
-                </button>
-              </div>
-              <div
-                style={{
-                  backgroundColor:
-                    mediaState?.backgroundColor ||
-                    cardMedia[activeCard?.i]?.backgroundColor ||
-                    "rgba(156, 163, 175)",
-                }}
-                className={`${
-                  activeCard?.w == 1 ? "w-[195px] " : "w-full sm:w-[400px]"
-                } rounded-xl`}
-              >
-                <TransformComponent
-                  wrapperStyle={{
-                    width: "100%",
-                    height: "170px",
-                  }}
-                >
-                  <div
-                    style={{
-                      backgroundImage: `url(${
-                        mediaState?.image ||
-                        cardMedia[activeCard?.i]?.image ||
-                        null
-                      })`,
-                    }}
-                    className={`
-                    ${activeCard?.w == 1 ? "w-[195px] " : "w-full sm:w-[400px]"}
-                  h-[170px] rounded-xl bg-contain bg-center bg-no-repeat relative`}
-                  ></div>
-                </TransformComponent>
-              </div>
-            </>
-          )}
-        </TransformWrapper>
-
-        <button
-          onClick={() => (activeCard?.w == 1 ? setSize(2) : setSize(1))}
-          className={`${
-            activeCard?.w == 1
-              ? "bg-indigo-200 text-gray-600 hover:bg-indigo-300"
-              : "bg-transparent text-gray-600 hover:bg-gray-50"
-          } w-full py-1.5 rounded focus:outline-none border border-gray-400 transition duration-300 ease-in-out mb-6`}
-        >
-          Switch to {activeCard?.w == 1 ? "full card" : "half card"}
-        </button>
-
-        <div>
-          {/* {mode == 'image' && <SketchPicker />} */}
-          {mode == "color" && (
-            <div className="absolute z-20">
-              <div
-                className="fixed top-0 right-0 left-0 bottom-0"
-                onClick={() => setMode(false)}
-              />
-              <SketchPicker
-                color={mediaState?.backgroundColor}
-                onChangeComplete={handleColorChange}
-              />
-            </div>
-          )}
-          {/* {mode == 'text' && <SketchPicker />} */}
-
-          <Typography id="continuous-slider" gutterBottom>
-            {/* Volume */}
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item>Opacity</Grid>
-            <Grid item xs>
-              <Slider
-                value={opacity}
-                onChange={opacityHandler}
-                aria-labelledby="continuous-slider"
-              />
-            </Grid>
-            <Grid item>{/* Opacity */}</Grid>
-          </Grid>
-        </div>
-
-        <div className="flex w-full justify-between items-center space-x-2 mb-2">
-          <button
-            onClick={() => removingModalHandler(activeCard)}
-            className="w-1/2 py-1.5 rounded focus:outline-none bg-red-600 text-white flex items-center justify-center"
+        <div className="absolute inset-0 overflow-hidden">
+          <Transition.Child
+            as={Fragment}
+            enter="ease-in-out duration-500"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in-out duration-500"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
           >
-            <FiTrash className="w-4 h-4 mr-1.5" /> Delete
-          </button>
+            <Dialog.Overlay className="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          </Transition.Child>
+          <div className="fixed inset-y-0 right-0 pl-10 max-w-full flex">
+            <Transition.Child
+              as={Fragment}
+              enter="transform transition ease-in-out duration-500 sm:duration-700"
+              enterFrom="translate-x-full"
+              enterTo="translate-x-0"
+              leave="transform transition ease-in-out duration-500 sm:duration-700"
+              leaveFrom="translate-x-0"
+              leaveTo="translate-x-full"
+            >
+              <div className="relative w-screen max-w-3xl">
+                <div className="h-full flex flex-col bg-white shadow-xl overflow-y-scroll ">
+                  <div className="relative flex flex-col h-full justify-between">
+                    {/* Replace with your content */}
+
+                    <div>
+                      <div className="flex items-center justify-between pt-4 pb-2 mb-4 border-b border-gray-300 px-4 sm:px-6">
+                        <div
+                          onClick={() => {
+                            setMediaState({});
+                            editModeHandler();
+                          }}
+                          className="bg-gray-400 w-8 rounded-lg h-7 flex flex-col items-center justify-center cursor-pointer"
+                        >
+                          <span className="sr-only">Close panel</span>
+                          <TiChevronLeft className="w-4 h-4 text-white" />
+                        </div>
+
+                        <div>
+                          <BsCheck
+                            onClick={handleSave}
+                            className="w-8 h-8 flex items-center justify-center text-gray-900 cursor-pointer"
+                          />
+                        </div>
+                      </div>
+                      <div className="px-4 sm:px-6">
+                        <TransformWrapper
+                          doubleClick={{ disabled: true }}
+                          wheel={{ step: "0.97" }}
+                          minScale={0.1}
+                          centerZoomedOut={true}
+                          ref={zoomPanPinchRef}
+                          onZoomStop={() => handlePinchPanZoom(zoomPanPinchRef)}
+                          onWheelStop={() =>
+                            handlePinchPanZoom(zoomPanPinchRef)
+                          }
+                          onPinchingStop={() =>
+                            handlePinchPanZoom(zoomPanPinchRef)
+                          }
+                          onPanningStop={() =>
+                            handlePinchPanZoom(zoomPanPinchRef)
+                          }
+                          initialScale={mediaState?.pinchPanZoom?.scale || 1}
+                          initialPositionX={
+                            mediaState?.pinchPanZoom?.positionX || 0
+                          }
+                          initialPositionY={
+                            mediaState?.pinchPanZoom?.positionY || 0
+                          }
+                        >
+                          {({ zoomIn, zoomOut, resetTransform }) => (
+                            <>
+                              <div className="flex items-center justify-center pb-4 space-x-6">
+                                {mediaState?.image ? (
+                                  <FcRemoveImage
+                                    onClick={() => handleImageRemove()}
+                                    className="w-8 h-8"
+                                  />
+                                ) : (
+                                  <label>
+                                    <input
+                                      className="hidden"
+                                      type="file"
+                                      onChange={(e) => {
+                                        handleChange(e);
+                                      }}
+                                    />
+                                    <FcAddImage className="w-8 h-8" />
+                                  </label>
+                                )}
+
+                                <div
+                                  onClick={() =>
+                                    mediaState?.size == 1
+                                      ? setMediaState((prevState) => ({
+                                          ...prevState,
+                                          size: 2,
+                                        }))
+                                      : setMediaState((prevState) => ({
+                                          ...prevState,
+                                          size: 1,
+                                        }))
+                                  }
+                                  className="w-12 h-6 border border-dashed border-gray-400 rounded cursor-pointer"
+                                >
+                                  <div
+                                    className={`${
+                                      mediaState?.size == 1 ? "w-6 " : "w-full "
+                                    } h-full bg-gray-400 rounded`}
+                                  ></div>
+                                </div>
+
+                                {mediaState?.image ? (
+                                  <>
+                                    <AiOutlinePlus
+                                      onClick={() => {
+                                        zoomIn(0.1);
+                                        handlePinchPanZoom(zoomPanPinchRef);
+                                      }}
+                                      className="w-6 h-6 cursor-pointer"
+                                    />
+
+                                    <AiOutlineMinus
+                                      onClick={() => {
+                                        zoomOut(0.1);
+                                        handlePinchPanZoom(zoomPanPinchRef);
+                                      }}
+                                      className="w-6 h-6 cursor-pointer"
+                                    />
+
+                                    <GrPowerReset
+                                      onClick={() => {
+                                        resetTransform();
+                                        handlePinchPanZoom(zoomPanPinchRef);
+                                      }}
+                                      className="w-6 h-6 cursor-pointer"
+                                    />
+
+                                    {/* <VscColorMode
+                                      style={{
+                                        color: mediaState?.backgroundColor,
+                                      }}
+                                      onClick={() => setMode("color")}
+                                      className="w-7 h-7 flex items-center justify-center cursor-pointer"
+                                    /> */}
+                                  </>
+                                ) : null}
+                              </div>
+                              <div
+                                style={{
+                                  backgroundColor: mediaState?.backgroundColor,
+                                }}
+                                className={`${
+                                  mediaState?.size == 1
+                                    ? "w-[195px] "
+                                    : "w-full sm:w-[400px]"
+                                } rounded-xl mx-auto`}
+                              >
+                                <TransformComponent wrapperClass="rounded-xl">
+                                  <div
+                                    style={{
+                                      backgroundImage: `url(${mediaState?.image})`,
+                                    }}
+                                    className={`
+                    ${
+                      mediaState?.size == 1
+                        ? "w-[195px] "
+                        : "w-full sm:w-[400px]"
+                    }
+                  h-[170px] rounded-xl bg-contain bg-center bg-no-repeat relative`}
+                                  ></div>
+                                </TransformComponent>
+                              </div>
+                            </>
+                          )}
+                        </TransformWrapper>
+
+                        <div className="pt-6 flex items-center justify-center">
+                          <SketchPicker
+                            color={mediaState?.backgroundColor}
+                            onChangeComplete={handleColorChange}
+                          />
+
+                          {/* <p>Opacity</p>
+                          <Slider /> */}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* CONTROLS */}
+                    <div className="flex items-center justify-end py-4 border-t border-gray-300 px-4 sm:px-6">
+                      {/*  <label>
+                        <input
+                          className="hidden"
+                          type="file"
+                          onChange={(e) => {
+                            handleChange(e);
+                          }}
+                        />
+                        <BsFillGrid1X2Fill
+                          // onClick={() => setMode("image")}
+                          className="w-10 h-10 flex items-center justify-center text-gray-700 cursor-pointer"
+                        />
+                      </label>
+
+                     
+                      <BiText
+                        onClick={() => setMode("text")}
+                        className="w-10 h-10 flex items-center justify-center text-gray-900 cursor-pointer"
+                      /> */}
+                      <FaTrash
+                        onClick={() => removingModalHandler(activeCard)}
+                        className="w-6 h-6 flex items-center justify-center text-red-600 cursor-pointer"
+                      />
+                    </div>
+                    {/* /End replace */}
+                  </div>
+                </div>
+              </div>
+            </Transition.Child>
+          </div>
         </div>
-        <button
-          onClick={handleSave}
-          className="w-full py-1.5 rounded focus:outline-none bg-indigo-700 text-white "
-        >
-          Save
-        </button>
-      </SlidingPane>
-    </>
+      </Dialog>
+    </Transition.Root>
   );
 }

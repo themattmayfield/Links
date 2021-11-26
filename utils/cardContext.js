@@ -89,6 +89,7 @@ function useProvideCard() {
     });
     removingModalHandler(false);
   };
+
   const removeCardHandler = async () => {
     if (cardMedia[activeCard?.i]?.image) {
       deleteFile(`/${authUser?.uid}/${activeCard?.i}`)
@@ -100,7 +101,7 @@ function useProvideCard() {
           await updateDoc(docRef, {
             [createdKey]: deleteField(),
           });
-          deleteCardUI();
+          // deleteCardUI();
         })
         .catch((err) => {
           console.log(err);
@@ -110,15 +111,36 @@ function useProvideCard() {
     }
   };
 
-  const cardSaveHandler = () => {
+  const deleteImageHandler = async () => {
+    if (cardMedia[activeCard?.i]?.image) {
+      console.log("here in delete");
+      deleteFile(`/${authUser?.uid}/${activeCard?.i}`)
+        .then(async () => {
+          const docRef = doc(db, "users", authUser?.uid);
+
+          const createdKey = `cardMedia.${activeCard?.i}.image`;
+
+          await updateDoc(docRef, {
+            [createdKey]: deleteField(),
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      deleteCardUI();
+    }
+  };
+
+  const cardSaveHandler = (mediaState) => {
     const lg = [...layouts.lg];
     const xxs = [...layouts.xxs];
 
     const lgIndex = _.findIndex(lg, { i: activeCard.i });
     const xxsIndex = _.findIndex(xxs, { i: activeCard.i });
 
-    lg[lgIndex] = { ...activeCard };
-    xxs[xxsIndex] = { ...activeCard };
+    lg[lgIndex] = { ...activeCard, w: mediaState?.size };
+    xxs[xxsIndex] = { ...activeCard, w: mediaState?.size };
 
     setLayouts({
       lg: lg,
@@ -139,7 +161,7 @@ function useProvideCard() {
 
     try {
       const docRef = doc(db, "users", authUser?.uid);
-      await updateDoc(docRef, { layout: cleanLayout });
+      await setDoc(docRef, { layout: cleanLayout }, { merge: true });
 
       // console.log("Document written with ID: ", docRef);
     } catch (error) {
@@ -180,7 +202,7 @@ function useProvideCard() {
 
       getDoc(docRef).then((docSnap) => {
         if (docSnap.exists()) {
-          // console.log(docSnap.data());
+          console.log(docSnap.data());
           setLayouts(docSnap.data().layout || {});
           setCardMedia(docSnap.data().cardMedia || {});
         } else {
@@ -206,5 +228,6 @@ function useProvideCard() {
     cardMedia,
     setCardMedia,
     updateMedia,
+    deleteImageHandler,
   };
 }
