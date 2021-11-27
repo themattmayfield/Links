@@ -11,52 +11,47 @@ import { useJiggle } from "@/utils/Hooks/jiggleModeContext";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
-export default function Cards() {
+export default function Cards({ preview }) {
   const { addCardHandler, onLayoutChange, layouts, getHeight, cardMode } =
     useCard();
 
   const { jiggleMode } = useJiggle();
+  if (!preview)
+    return (
+      <>
+        {cardMode === "remove" ? <RemoveCardModal /> : null}
 
-  return (
-    <>
-      {cardMode === "remove" ? <RemoveCardModal /> : null}
+        <SideTray />
+        <div className="px-2">
+          <button
+            onClick={() => addCardHandler()}
+            className="bg-trustBlue text-white w-full h-12 rounded focus:outline-none"
+          >
+            Add Card
+          </button>
+        </div>
 
-      <SideTray />
-      <div className="px-2">
-        <button
-          onClick={() => addCardHandler()}
-          className="bg-trustBlue text-white w-full h-12 rounded focus:outline-none"
+        <ResponsiveGridLayout
+          isDraggable={jiggleMode}
+          isResizable={false}
+          className="layout relative h-full w-full"
+          rowHeight={170}
+          cols={{ lg: 2, xxs: 2 }}
+          layouts={layouts}
+          onLayoutChange={(layout, layouts) => onLayoutChange(layout, layouts)}
+          // style={{minHeight: `calc(170px * ${layouts.xxs.length})`}}
+          style={{ minHeight: `calc(170px * ${getHeight})` }}
         >
-          Add Card
-        </button>
-      </div>
-
-      <ResponsiveGridLayout
-        isDraggable={jiggleMode}
-        isResizable={false}
-        className="layout relative h-full w-full"
-        rowHeight={170}
-        cols={{ lg: 2, xxs: 2 }}
-        layouts={layouts}
-        onLayoutChange={(layout, layouts) => onLayoutChange(layout, layouts)}
-        // style={{minHeight: `calc(170px * ${layouts.xxs.length})`}}
-        style={{ minHeight: `calc(170px * ${getHeight})` }}
-      >
-        {layouts?.xxs?.map((card, i) => (
-          <div key={card.i} data-grid={card}>
-            <BouncyDiv isShaking={jiggleMode} className="w-full h-full">
-              <NewCard card={card} />
-            </BouncyDiv>
-          </div>
-        ))}
-      </ResponsiveGridLayout>
-    </>
-  );
-}
-
-export function CardsPreview() {
-  const { addCardHandler, onLayoutChange, layouts, getHeight, cardMode } =
-    useCard();
+          {layouts?.xxs?.map((card, i) => (
+            <div key={card.i} data-grid={card}>
+              <BouncyDiv isShaking={jiggleMode} className="w-full h-full">
+                <NewCard card={card} />
+              </BouncyDiv>
+            </div>
+          ))}
+        </ResponsiveGridLayout>
+      </>
+    );
 
   return (
     <>
@@ -72,9 +67,7 @@ export function CardsPreview() {
       >
         {layouts?.xxs?.map((card, i) => (
           <div key={card.i} data-grid={card}>
-            {/* <BouncyDiv  className="w-full h-full"> */}
-            <NewCard card={card} />
-            {/* </BouncyDiv> */}
+            <NewCard card={card} preview />
           </div>
         ))}
       </ResponsiveGridLayout>

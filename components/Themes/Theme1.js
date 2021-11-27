@@ -5,6 +5,7 @@ import useOnClickOutside from "@/utils/Hooks/useOnClickOutside";
 import Cards from "@/components/Cards";
 import LinksLoading from "@/components/LinksLoading";
 import Device from "@/components/Device";
+import Image from "next/image";
 function Theme1() {
   const { jiggleRef, setjiggleMode } = useJiggle();
   const { cardMode, layouts } = useCard();
@@ -27,13 +28,28 @@ function Theme1() {
         >
           <Cards />
         </div>
-        {/* <Device /> */}
+        <Device view={<DevicePreview />} />
       </div>
-      {/* <div ref={jiggleRef} className="mx-auto " style={{ maxWidth: "420px" }}>
-    <Cards />
-   </div> */}
     </>
   );
 }
 
 export default Theme1;
+
+const DevicePreview = () => {
+  return (
+    <div className="pt-12 flex flex-col items-center">
+      <div className="w-24 h-24 rounded-full bg-red-600 relative">
+        <Image
+          src="/me.png"
+          alt="Picture of the author"
+          layout="fill"
+          objectFit="contain"
+          quality={100}
+        />
+      </div>
+      <p className="font-medium pt-2">Nothing Less Than Savage</p>
+      <Cards preview />;
+    </div>
+  );
+};

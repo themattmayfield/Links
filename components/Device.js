@@ -1,7 +1,7 @@
 import React from "react";
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from "react-live";
-import { CardsPreview } from "@/components/Cards";
-const Device = () => {
+
+const Device = ({ view }) => {
   // return (
   //   <LiveProvider code="<strong>Hello World!</strong>">
   //     <LiveEditor />
@@ -29,7 +29,7 @@ const Device = () => {
         <div className="inner-shadow"></div>
         <div className="screen">
           {/* <p>hello</p> */}
-          <CardsPreview />
+          {view}
         </div>
       </div>
     </div>
