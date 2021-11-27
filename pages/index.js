@@ -7,14 +7,15 @@ import { PageContainer } from "@/components/pageUtils";
 import { useOnClickOutside } from "@/utils/hooks";
 import { useJiggle } from "@/utils/jiggleModeContext";
 import { useCard } from "@/utils/cardContext";
-import ThemeRender from "@/components/Themes/ThemeRender";
+import { useTheme } from "@/utils/themeContext";
 
 export default function Home() {
   const { jiggleRef, setjiggleMode } = useJiggle();
-  const { cardMode, layouts, activeTheme } = useCard();
+  const { cardMode, layouts } = useCard();
+  const { activeTheme, ThemeRender } = useTheme();
 
-  const ThemeToRender = ThemeRender[activeTheme?.name] || "Theme1";
-  console.log(activeTheme);
+  const ThemeToRender = ThemeRender[activeTheme?.name || "Theme1"];
+
   useOnClickOutside(jiggleRef, () => {
     !cardMode && setjiggleMode(false);
   });

@@ -11,7 +11,6 @@ import {
 } from "firebase/firestore";
 import uuid from "react-uuid";
 import { deleteFile } from "./storage";
-import { themes } from "@/utils/themes";
 
 const cardContext = createContext();
 
@@ -34,7 +33,6 @@ function useProvideCard() {
 
   const [activeCard, setActiveCard] = useState(null);
   const [cardMode, setCardMode] = useState(null);
-  const [activeTheme, setActiveTheme] = useState(null);
 
   const [cardMedia, setCardMedia] = useState({});
   const [layouts, setLayouts] = useState(null);
@@ -99,7 +97,7 @@ function useProvideCard() {
         .then(async () => {
           const docRef = doc(db, "users", authUser?.uid);
 
-          const createdKey = `${activeTheme?.name}.cardMedia.${activeCard?.i}`;
+          const createdKey = `Theme1.cardMedia.${activeCard?.i}`;
           console.log(createdKey);
           await updateDoc(docRef, {
             [createdKey]: deleteField(),
@@ -121,7 +119,7 @@ function useProvideCard() {
         .then(async () => {
           const docRef = doc(db, "users", authUser?.uid);
 
-          const createdKey = `${activeTheme?.name}.cardMedia.${activeCard?.i}.image`;
+          const createdKey = `Theme1.cardMedia.${activeCard?.i}.image`;
 
           await updateDoc(docRef, {
             [createdKey]: deleteField(),
@@ -166,7 +164,7 @@ function useProvideCard() {
       const docRef = doc(db, "users", authUser?.uid);
       await setDoc(
         docRef,
-        { [activeTheme?.name]: { layout: cleanLayout } },
+        { Theme1: { layout: cleanLayout } },
         { merge: true }
       );
 
@@ -185,7 +183,7 @@ function useProvideCard() {
       await setDoc(
         docRef,
         {
-          [activeTheme?.name]: {
+          Theme1: {
             cardMedia: {
               [activeCard?.i]: {
                 ...mediaState,
@@ -205,27 +203,6 @@ function useProvideCard() {
     }));
   };
 
-  const changeTheme = async (theme) => {
-    try {
-      setActiveTheme(theme);
-      const docRef = doc(db, "users", authUser?.uid);
-      await setDoc(docRef, { activeTheme: theme }, { merge: true });
-
-      getDoc(docRef).then((docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          console.log(data);
-          setLayouts(data[theme?.name]?.layout || {});
-          setCardMedia(data[theme?.name]?.cardMedia || {});
-        } else {
-          setLayouts({});
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   useEffect(() => {
     if (authUser) {
       const docRef = doc(db, "users", authUser?.uid);
@@ -234,9 +211,8 @@ function useProvideCard() {
         if (docSnap.exists()) {
           const data = docSnap.data();
           console.log(data);
-          setActiveTheme(data.activeTheme || _.find(themes, { id: "0" }));
-          setLayouts(data[data.activeTheme?.name]?.layout || {});
-          setCardMedia(data[data.activeTheme?.name]?.cardMedia || {});
+          setLayouts(data.Theme1?.layout || {});
+          setCardMedia(data.Theme1?.cardMedia || {});
         } else {
           setLayouts({});
         }
@@ -261,7 +237,5 @@ function useProvideCard() {
     setCardMedia,
     updateMedia,
     deleteImageHandler,
-    activeTheme,
-    changeTheme,
   };
 }

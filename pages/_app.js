@@ -1,19 +1,20 @@
 import "../style.css";
 import "react-grid-layout/css/styles.css";
 import { AuthProvider } from "@/utils/auth";
-import { CardProvider } from "@/utils/cardContext";
+import Providers from "@/utils/Providers";
+import { ThemeProvider } from "@/utils/themeContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { JiggleProvider } from "@/utils/jiggleModeContext";
+
 export default function MyApp({ Component, pageProps }) {
   return (
     <AuthProvider>
-      <CardProvider>
-        <JiggleProvider>
+      <ThemeProvider>
+        <Providers>
           <Component {...pageProps} />
           <ToastContainer />
-        </JiggleProvider>
-      </CardProvider>
+        </Providers>
+      </ThemeProvider>
     </AuthProvider>
   );
 }

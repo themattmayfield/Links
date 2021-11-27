@@ -1,6 +1,6 @@
 // import { useState, useEffect } from "react";
 import { useAuth } from "@/utils/auth";
-import { useCard } from "@/utils/cardContext";
+import { useTheme } from "@/utils/themeContext";
 import Loading from "@/components/Loading";
 import Layout from "@/components/Layout";
 import { PageContainer, Toast } from "@/components/pageUtils";
@@ -48,7 +48,7 @@ export default function Home() {
 }
 
 const Theme = ({ theme }) => {
-  const { activeTheme, changeTheme } = useCard();
+  const { activeTheme, changeTheme } = useTheme();
   return (
     <button
       onClick={() => {
