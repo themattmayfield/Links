@@ -3,7 +3,7 @@ import { Responsive, WidthProvider } from "react-grid-layout";
 import NewCard from "./NewCard";
 import { BouncyDiv } from "./pageUtils";
 import _ from "lodash";
-import SideTray from "../components/SideTray";
+import SideTray from "@/components/SideTray";
 import { useCard } from "@/utils/Theme/cardContext";
 // import { useAuth } from "@/utils/auth";
 import RemoveCardModal from "./RemoveCardModal";
@@ -34,7 +34,7 @@ export default function Cards() {
       <ResponsiveGridLayout
         isDraggable={jiggleMode}
         isResizable={false}
-        className="layout relative h-full"
+        className="layout relative h-full w-full"
         rowHeight={170}
         cols={{ lg: 2, xxs: 2 }}
         layouts={layouts}
@@ -47,6 +47,34 @@ export default function Cards() {
             <BouncyDiv isShaking={jiggleMode} className="w-full h-full">
               <NewCard card={card} />
             </BouncyDiv>
+          </div>
+        ))}
+      </ResponsiveGridLayout>
+    </>
+  );
+}
+
+export function CardsPreview() {
+  const { addCardHandler, onLayoutChange, layouts, getHeight, cardMode } =
+    useCard();
+
+  return (
+    <>
+      <ResponsiveGridLayout
+        isDraggable={false}
+        isResizable={false}
+        className="layout relative h-full w-full"
+        rowHeight={170}
+        cols={{ lg: 2, xxs: 2 }}
+        layouts={layouts}
+        onLayoutChange={(layout, layouts) => onLayoutChange(layout, layouts)}
+        style={{ minHeight: `calc(170px * ${getHeight})` }}
+      >
+        {layouts?.xxs?.map((card, i) => (
+          <div key={card.i} data-grid={card}>
+            {/* <BouncyDiv  className="w-full h-full"> */}
+            <NewCard card={card} />
+            {/* </BouncyDiv> */}
           </div>
         ))}
       </ResponsiveGridLayout>

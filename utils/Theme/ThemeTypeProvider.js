@@ -8,11 +8,7 @@ export default function ThemeTypeProvider({ children }) {
   const { activeTheme } = useTheme();
 
   if (activeTheme?.id === "0")
-    return (
-      <JiggleProvider>
-        <BasicThemeProvider>{children}</BasicThemeProvider>
-      </JiggleProvider>
-    );
+    return <BasicThemeProvider>{children}</BasicThemeProvider>;
   return (
     <JiggleProvider>
       <CardProvider>{children}</CardProvider>

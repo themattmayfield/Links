@@ -1,4 +1,5 @@
 import "../style.css";
+import "../styles/device.min.css";
 import "react-grid-layout/css/styles.css";
 import { AuthProvider } from "@/utils/auth";
 import ThemeTypeProvider from "@/utils/Theme/ThemeTypeProvider";

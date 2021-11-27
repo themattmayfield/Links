@@ -63,44 +63,127 @@ export default function NewCard({ card }) {
           </>
         )}
         {!_.isEmpty(thisCard?.image) && !loading ? (
-          <TransformWrapper
-            minScale={0.1}
-            centerZoomedOut={true}
-            initialScale={thisCard?.pinchPanZoom?.scale}
-            initialPositionX={thisCard?.pinchPanZoom?.positionX}
-            initialPositionY={thisCard?.pinchPanZoom?.positionY}
-            disabled
+          <button
+            {...longPressEvent}
+            style={{
+              backgroundColor:
+                thisCard?.backgroundColor || "rgba(156, 163, 175)",
+              // backgroundImage: `url(${thisCard?.image})`,
+            }}
+            className={`${
+              thisCard.size == 1 ? "w-[195px] " : "w-full sm:w-[400px]"
+            } 
+                w-full cursor-pointer h-full rounded-xl flex flex-col items-center justify-center overflow-hidden`}
           >
-            <>
-              <button
-                {...longPressEvent}
+            {thisCard?.image && (
+              // <TransformWrapper
+              //   minScale={0.1}
+              //   centerZoomedOut={true}
+              //   initialScale={thisCard?.pinchPanZoom?.scale}
+              //   initialPositionX={thisCard?.pinchPanZoom?.positionX}
+              //   initialPositionY={thisCard?.pinchPanZoom?.positionY}
+              //   disabled
+              // >
+              //   <>
+              //     <button
+              //       {...longPressEvent}
+              //       style={{
+              //         backgroundColor:
+              //           thisCard?.backgroundColor || "rgba(156, 163, 175)",
+              //       }}
+              //       className={`${
+              //         thisCard.size == 1 ? "w-[195px] " : "w-full sm:w-[400px]"
+              //       } rounded-xl mx-auto`}
+              //     >
+              //       <TransformComponent wrapperClass="rounded-xl">
+              //         {thisCard?.image && (
+              //           <div
+              //             style={{
+              //               backgroundImage: `url(${thisCard?.image})`,
+              //             }}
+              //             className={`
+              //         ${
+              //           thisCard?.size == 1
+              //             ? "w-[195px] "
+              //             : "w-full sm:w-[400px]"
+              //         }
+              //       h-[170px] rounded-xl bg-contain bg-center bg-no-repeat relative`}
+              //           ></div>
+              //         )}
+              //       </TransformComponent>
+              //     </button>
+              //   </>
+              // </TransformWrapper>
+              <div
                 style={{
-                  backgroundColor:
-                    thisCard?.backgroundColor || "rgba(156, 163, 175)",
+                  position: "relative",
+                  width: thisCard.size == 1 ? "195px" : "400px",
+                  height: "170px",
+                  // width: "fit-content",
+                  // height: "fit-content",
+                  // overflow: "hidden",
+                  margin: 0,
+                  padding: 0,
                 }}
-                className={`${
-                  thisCard.size == 1 ? "w-[195px] " : "w-full sm:w-[400px]"
-                } rounded-xl mx-auto`}
               >
-                <TransformComponent wrapperClass="rounded-xl">
-                  {thisCard?.image && (
-                    <div
-                      style={{
-                        backgroundImage: `url(${thisCard?.image})`,
-                      }}
-                      className={`
-                      ${
-                        thisCard?.size == 1
-                          ? "w-[195px] "
-                          : "w-full sm:w-[400px]"
+                <div
+                  style={{
+                    width: `${
+                      (thisCard.size == 1 ? 195 : 400) *
+                      (thisCard?.pinchPanZoom?.scale || 1)
+                    }px`,
+                    height: `${170 * thisCard?.pinchPanZoom?.scale || 1}px`,
+                    display: "flex",
+                    justifyContent: "center",
+
+                    transform: `translate3d(${
+                      thisCard?.pinchPanZoom?.positionX
+                        ? `${thisCard?.pinchPanZoom?.positionX}px`
+                        : "0px"
+                    }, ${
+                      thisCard?.pinchPanZoom?.positionY
+                        ? `${thisCard?.pinchPanZoom?.positionY}px`
+                        : "0px"
+                    }, 0px)                     
+                    `,
+
+                    margin: 0,
+                    padding: 0,
+                    transformOrigin: "0% 0%",
+                  }}
+                >
+                  <img
+                    style={
+                      {
+                        // transform: `translate3d(thisCard?.pinchPanZoom?.positionX, thisCard?.pinchPanZoom?.positionY, 0px) scale(thisCard?.pinchPanZoom?.scale)`,
+                        // transformOrigin: "0% 0%",
+                        // "--tw-scale-x": thisCard?.pinchPanZoom?.scale
+                        //   ? thisCard?.pinchPanZoom?.scale
+                        //   : 1,
+                        // "--tw-scale-y": thisCard?.pinchPanZoom?.scale,
+                        // transform: var(--tw-transform)
+                        // transform: `scale(${thisCard?.pinchPanZoom?.scale},${thisCard?.pinchPanZoom?.scale})`,
                       }
-                    h-[170px] rounded-xl bg-contain bg-center bg-no-repeat relative`}
-                    ></div>
-                  )}
-                </TransformComponent>
-              </button>
-            </>
-          </TransformWrapper>
+                    }
+                    onLoad={() => console.log("loaded", card.i)}
+                    className="object-contain object-center"
+                    src={thisCard?.image}
+                  />
+                </div>
+              </div>
+              // <Image
+              //   style={{
+              //     transform: `translate3d(thisCard?.pinchPanZoom?.positionX, thisCard?.pinchPanZoom?.positionY, 0px) scale(thisCard?.pinchPanZoom?.scale || 1)`,
+              //   }}
+              //   onLoad={() => console.log("loaded", card.i)}
+              //   className="rounded-xl scale-50ss object-contain object-center transform"
+              //   alt="Mountains"
+              //   src={thisCard?.image}
+              //   layout="fill"
+              //   objectFit="cover"
+              // />
+            )}
+          </button>
         ) : (
           <button
             {...longPressEvent}

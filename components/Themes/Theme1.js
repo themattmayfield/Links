@@ -4,8 +4,8 @@ import { useJiggle } from "@/utils/Hooks/jiggleModeContext";
 import useOnClickOutside from "@/utils/Hooks/useOnClickOutside";
 import Cards from "@/components/Cards";
 import LinksLoading from "@/components/LinksLoading";
-
-function Theme0() {
+import Device from "@/components/Device";
+function Theme1() {
   const { jiggleRef, setjiggleMode } = useJiggle();
   const { cardMode, layouts } = useCard();
 
@@ -18,10 +18,22 @@ function Theme0() {
   }
 
   return (
-    <div ref={jiggleRef} className="mx-auto " style={{ maxWidth: "420px" }}>
-      <Cards />
-    </div>
+    <>
+      <div className="flex items-cener justify-between">
+        <div
+          ref={jiggleRef}
+          className="mx-auto flex-1"
+          style={{ maxWidth: "420px" }}
+        >
+          <Cards />
+        </div>
+        {/* <Device /> */}
+      </div>
+      {/* <div ref={jiggleRef} className="mx-auto " style={{ maxWidth: "420px" }}>
+    <Cards />
+   </div> */}
+    </>
   );
 }
 
-export default Theme0;
+export default Theme1;

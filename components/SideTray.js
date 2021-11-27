@@ -24,7 +24,7 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import Slider, { Range } from "rc-slider";
 import "rc-slider/assets/index.css";
 
-export default function Example() {
+export default function SideTray() {
   const {
     activeCard,
     setActiveCard,
@@ -170,7 +170,7 @@ export default function Example() {
     <Transition.Root show={cardMode === "edit"} as={Fragment}>
       <Dialog
         as="div"
-        className="fixed inset-0 overflow-hidden"
+        className="fixed inset-0 overflow-hidden z-50"
         onClose={() => {
           setMediaState({});
           editModeHandler();
