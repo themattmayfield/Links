@@ -78,25 +78,16 @@ export default function NewCard({ card }) {
                   backgroundColor:
                     thisCard?.backgroundColor || "rgba(156, 163, 175)",
                 }}
-                className={`${
-                  thisCard.size == 1 ? "w-[195px] " : "w-full sm:w-[400px]"
-                } rounded-xl mx-auto`}
+                className={`rounded-xl mx-auto w-full h-full`}
               >
                 <TransformComponent wrapperClass="rounded-xl">
-                  {thisCard?.image && (
-                    <div
-                      style={{
-                        backgroundImage: `url(${thisCard?.image})`,
-                      }}
-                      className={`
-                      ${
-                        thisCard?.size == 1
-                          ? "w-[195px] "
-                          : "w-full sm:w-[400px]"
-                      }
-                    h-[170px] rounded-xl bg-contain bg-center bg-no-repeat relative`}
-                    ></div>
-                  )}
+                  <div
+                    style={{
+                      backgroundImage: `url(${thisCard?.image})`,
+                    }}
+                    className={`
+                      rounded-xl bg-contain bg-center bg-no-repeat relative`}
+                  ></div>
                 </TransformComponent>
               </button>
             </>

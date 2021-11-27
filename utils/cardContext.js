@@ -32,6 +32,7 @@ function useProvideCard() {
 
   const [activeCard, setActiveCard] = useState(null);
   const [cardMode, setCardMode] = useState(null);
+  const [activeTheme, setActiveTheme] = useState(null);
 
   const [cardMedia, setCardMedia] = useState({});
   const [layouts, setLayouts] = useState(null);
@@ -196,6 +197,16 @@ function useProvideCard() {
     }));
   };
 
+  const changeTheme = async (id) => {
+    try {
+      setActiveTheme(id);
+      const docRef = doc(db, "users", authUser?.uid);
+      await setDoc(docRef, { activeTheme: id }, { merge: true });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (authUser) {
       const docRef = doc(db, "users", authUser?.uid);
@@ -203,6 +214,7 @@ function useProvideCard() {
       getDoc(docRef).then((docSnap) => {
         if (docSnap.exists()) {
           console.log(docSnap.data());
+          setActiveTheme(docSnap.data().activeTheme || 0);
           setLayouts(docSnap.data().layout || {});
           setCardMedia(docSnap.data().cardMedia || {});
         } else {
@@ -229,5 +241,7 @@ function useProvideCard() {
     setCardMedia,
     updateMedia,
     deleteImageHandler,
+    activeTheme,
+    changeTheme,
   };
 }
