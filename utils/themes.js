@@ -1,12 +1,12 @@
 export const themes = [
   {
     id: "0",
-    name: "basic",
+    name: "Theme0",
     displayName: "Basic",
   },
   {
     id: "1",
-    name: "card",
+    name: "Theme1",
     displayName: "Cards",
   },
 ];

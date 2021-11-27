@@ -11,6 +11,8 @@ import {
 } from "firebase/firestore";
 import uuid from "react-uuid";
 import { deleteFile } from "./storage";
+import { themes } from "@/utils/themes";
+
 const cardContext = createContext();
 
 export function CardProvider({ children }) {
@@ -97,7 +99,7 @@ function useProvideCard() {
         .then(async () => {
           const docRef = doc(db, "users", authUser?.uid);
 
-          const createdKey = `cardMedia.${activeCard?.i}`;
+          const createdKey = `${activeTheme?.name}.cardMedia.${activeCard?.i}`;
           console.log(createdKey);
           await updateDoc(docRef, {
             [createdKey]: deleteField(),
@@ -119,7 +121,7 @@ function useProvideCard() {
         .then(async () => {
           const docRef = doc(db, "users", authUser?.uid);
 
-          const createdKey = `cardMedia.${activeCard?.i}.image`;
+          const createdKey = `${activeTheme?.name}.cardMedia.${activeCard?.i}.image`;
 
           await updateDoc(docRef, {
             [createdKey]: deleteField(),
@@ -162,7 +164,11 @@ function useProvideCard() {
 
     try {
       const docRef = doc(db, "users", authUser?.uid);
-      await setDoc(docRef, { layout: cleanLayout }, { merge: true });
+      await setDoc(
+        docRef,
+        { [activeTheme?.name]: { layout: cleanLayout } },
+        { merge: true }
+      );
 
       // console.log("Document written with ID: ", docRef);
     } catch (error) {
@@ -179,9 +185,11 @@ function useProvideCard() {
       await setDoc(
         docRef,
         {
-          cardMedia: {
-            [activeCard?.i]: {
-              ...mediaState,
+          [activeTheme?.name]: {
+            cardMedia: {
+              [activeCard?.i]: {
+                ...mediaState,
+              },
             },
           },
         },
@@ -197,11 +205,22 @@ function useProvideCard() {
     }));
   };
 
-  const changeTheme = async (id) => {
+  const changeTheme = async (theme) => {
     try {
-      setActiveTheme(id);
+      setActiveTheme(theme);
       const docRef = doc(db, "users", authUser?.uid);
-      await setDoc(docRef, { activeTheme: id }, { merge: true });
+      await setDoc(docRef, { activeTheme: theme }, { merge: true });
+
+      getDoc(docRef).then((docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          console.log(data);
+          setLayouts(data[theme?.name]?.layout || {});
+          setCardMedia(data[theme?.name]?.cardMedia || {});
+        } else {
+          setLayouts({});
+        }
+      });
     } catch (error) {
       console.log(error);
     }
@@ -213,10 +232,11 @@ function useProvideCard() {
 
       getDoc(docRef).then((docSnap) => {
         if (docSnap.exists()) {
-          console.log(docSnap.data());
-          setActiveTheme(docSnap.data().activeTheme || 0);
-          setLayouts(docSnap.data().layout || {});
-          setCardMedia(docSnap.data().cardMedia || {});
+          const data = docSnap.data();
+          console.log(data);
+          setActiveTheme(data.activeTheme || _.find(themes, { id: "0" }));
+          setLayouts(data[data.activeTheme?.name]?.layout || {});
+          setCardMedia(data[data.activeTheme?.name]?.cardMedia || {});
         } else {
           setLayouts({});
         }

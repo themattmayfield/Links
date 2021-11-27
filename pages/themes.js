@@ -7,8 +7,7 @@ import { PageContainer, Toast } from "@/components/pageUtils";
 import _ from "lodash";
 import { themes } from "@/utils/themes";
 export default function Home() {
-  const { loading, user, authUser } = useAuth();
-  const { activeTheme, changeTheme, setActiveTheme } = useCard();
+  const { loading } = useAuth();
 
   if (loading) {
     return <Loading />;
@@ -53,7 +52,7 @@ const Theme = ({ theme }) => {
   return (
     <button
       onClick={() => {
-        changeTheme(theme.id);
+        changeTheme(theme);
         Toast(
           "success",
           <p>
@@ -63,7 +62,7 @@ const Theme = ({ theme }) => {
         );
       }}
       className={`${
-        activeTheme == theme.id ? "bg-trustBlue" : "bg-gray-300"
+        activeTheme?.id === theme.id ? "bg-trustBlue" : "bg-gray-300"
       }  rounded-lg w-64 xxs:w-36 sm:w-40 h-96 xxs:h-52 mx-auto focus:ring-2 focus:ring-blue-600 cursor-pointer`}
     />
   );
