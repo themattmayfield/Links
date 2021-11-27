@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import useLongPress from "../utils/scripts/useLongPress";
+import useLongPress from "../utils/Hooks/useLongPress";
 import { MdRemoveCircle } from "react-icons/md";
-import { useCard } from "@/utils/cardContext";
-import { useJiggle } from "@/utils/jiggleModeContext";
+import { useCard } from "@/utils/Theme/cardContext";
+import { useJiggle } from "@/utils/Hooks/jiggleModeContext";
 import Image from "next/image";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import _ from "lodash";

@@ -1,11 +1,11 @@
 // import { useState, useEffect } from "react";
 import { useAuth } from "@/utils/auth";
-import { useTheme } from "@/utils/themeContext";
+import { useTheme } from "@/utils/Theme/themeContext";
 import Loading from "@/components/Loading";
 import Layout from "@/components/Layout";
 import { PageContainer, Toast } from "@/components/pageUtils";
 import _ from "lodash";
-import { themes } from "@/utils/themes";
+import { themes } from "@/utils/Theme/themes";
 export default function Home() {
   const { loading } = useAuth();
 

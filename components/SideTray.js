@@ -1,7 +1,7 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Fragment, useState, useRef, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { useCard } from "@/utils/cardContext";
+import { useCard } from "@/utils/Theme/cardContext";
 import { TiChevronLeft } from "react-icons/ti";
 import {
   BsImage,

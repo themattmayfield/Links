@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, createContext } from "react";
 import _ from "lodash";
-import { useAuth } from "./auth";
-import { db } from "./firebase";
+import { useAuth } from "../auth";
+import { db } from "../firebase";
 import {
   getDoc,
   doc,
@@ -10,7 +10,7 @@ import {
   deleteField,
 } from "firebase/firestore";
 
-import { themes } from "@/utils/themes";
+import { themes } from "@/utils/Theme/themes";
 
 const themeContext = createContext();
 
@@ -42,7 +42,7 @@ function useProvideTheme() {
 
   themes.map((theme) => {
     ThemeRender[theme.name] =
-      require(`../components/Themes/${theme.name}`).default;
+      require(`../../components/Themes/${theme.name}`).default;
   });
 
   useEffect(() => {

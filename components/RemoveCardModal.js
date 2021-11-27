@@ -1,7 +1,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { FiTrash } from "react-icons/fi";
-import { useCard } from "@/utils/cardContext";
+import { useCard } from "@/utils/Theme/cardContext";
 export default function Modal() {
   const { cardMode, removingModalHandler, removeCardHandler } = useCard();
 

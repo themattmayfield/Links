@@ -4,10 +4,10 @@ import NewCard from "./NewCard";
 import { BouncyDiv } from "./pageUtils";
 import _ from "lodash";
 import SideTray from "../components/SideTray";
-import { useCard } from "@/utils/cardContext";
+import { useCard } from "@/utils/Theme/cardContext";
 // import { useAuth } from "@/utils/auth";
 import RemoveCardModal from "./RemoveCardModal";
-import { useJiggle } from "@/utils/jiggleModeContext";
+import { useJiggle } from "@/utils/Hooks/jiggleModeContext";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 

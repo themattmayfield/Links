@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, createContext } from "react";
 import _ from "lodash";
-import { useAuth } from "./auth";
-import { db } from "./firebase";
+import { useAuth } from "@/utils/auth";
+import { db } from "@/utils/firebase";
 import {
   getDoc,
   doc,
@@ -10,7 +10,7 @@ import {
   deleteField,
 } from "firebase/firestore";
 import uuid from "react-uuid";
-import { deleteFile } from "./storage";
+import { deleteFile } from "@/utils/storage";
 
 const cardContext = createContext();
 
