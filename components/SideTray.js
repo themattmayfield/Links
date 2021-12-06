@@ -284,9 +284,13 @@ export default function SideTray() {
                                   className="w-12 h-6 border border-dashed border-gray-400 rounded cursor-pointer"
                                 >
                                   <div
+                                    style={{
+                                      backgroundColor:
+                                        mediaState?.backgroundColor,
+                                    }}
                                     className={`${
                                       mediaState?.size == 1 ? "w-6 " : "w-full "
-                                    } h-full bg-gray-400 rounded`}
+                                    } h-full rounded`}
                                   ></div>
                                 </div>
 

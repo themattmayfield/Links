@@ -36,6 +36,8 @@ function useProvideCard() {
 
   const [cardMedia, setCardMedia] = useState({});
   const [layouts, setLayouts] = useState(null);
+  const [text, setText] = useState("");
+  const [picture, setPicture] = useState(null);
   const [getHeight, setHeight] = useState(_.maxBy(layouts?.xxs, "y")?.y);
 
   const editModeHandler = (item) => {
@@ -133,6 +135,24 @@ function useProvideCard() {
     }
   };
 
+  const deleteThemePhoto = async () => {
+    deleteFile(`/${authUser?.uid}/Theme1`)
+      .then(async () => {
+        const docRef = doc(db, "users", authUser?.uid);
+
+        const createdKey = `Theme1.picture`;
+
+        await updateDoc(docRef, {
+          [createdKey]: deleteField(),
+        });
+
+        setPicture(null);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   const cardSaveHandler = (mediaState) => {
     const lg = [...layouts.lg];
     const xxs = [...layouts.xxs];
@@ -203,6 +223,44 @@ function useProvideCard() {
     }));
   };
 
+  const updateThemeText = async (text) => {
+    try {
+      const docRef = doc(db, "users", authUser?.uid);
+      await setDoc(
+        docRef,
+        {
+          Theme1: {
+            text: text,
+          },
+        },
+        { merge: true }
+      );
+      console.log("Document written with ID: ", docRef);
+    } catch (error) {
+      console.log(error);
+    }
+    setText(text);
+  };
+
+  const updateThemePicture = async (picture) => {
+    try {
+      const docRef = doc(db, "users", authUser?.uid);
+      await setDoc(
+        docRef,
+        {
+          Theme1: {
+            picture: picture,
+          },
+        },
+        { merge: true }
+      );
+      console.log("Document written with ID: ", docRef);
+    } catch (error) {
+      console.log(error);
+    }
+    setPicture(picture);
+  };
+
   useEffect(() => {
     if (authUser) {
       const docRef = doc(db, "users", authUser?.uid);
@@ -213,6 +271,8 @@ function useProvideCard() {
           console.log(data);
           setLayouts(data.Theme1?.layout || {});
           setCardMedia(data.Theme1?.cardMedia || {});
+          setText(data.Theme1?.text || "");
+          setPicture(data.Theme1?.picture || null);
         } else {
           setLayouts({});
         }
@@ -222,6 +282,8 @@ function useProvideCard() {
 
   return {
     activeCard,
+    updateThemeText,
+    text,
     setActiveCard,
     editModeHandler,
     setCardMode,
@@ -237,5 +299,8 @@ function useProvideCard() {
     setCardMedia,
     updateMedia,
     deleteImageHandler,
+    updateThemePicture,
+    picture,
+    deleteThemePhoto,
   };
 }

@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import useLongPress from "../utils/Hooks/useLongPress";
-import { MdRemoveCircle } from "react-icons/md";
 import { useCard } from "@/utils/Theme/cardContext";
 import { useJiggle } from "@/utils/Hooks/jiggleModeContext";
 import Image from "next/image";
 
 import _ from "lodash";
 export default function NewCard({ card, preview }) {
-  const { removingModalHandler, editModeHandler, cardMedia } = useCard();
+  const { editModeHandler, cardMedia } = useCard();
   const { jiggleMode, setjiggleMode } = useJiggle();
 
   const [longPressCount, setlongPressCount] = useState(0);
@@ -50,18 +49,8 @@ export default function NewCard({ card, preview }) {
           onClick={() => {
             !jiggleMode && editModeHandler(card);
           }}
-          style={{ cursor: "pointer" }}
-          className="relative w-full h-full"
+          className="relative w-full h-full rounded-xl cursor-pointer"
         >
-          {jiggleMode && (
-            <>
-              <div className="absolute w-4 h-4 bg-black rounded-full -left-1 -top-1"></div>
-              <MdRemoveCircle
-                onClick={() => removingModalHandler(card)}
-                className="absolute w-7 h-7 text-gray-500  -left-2 -top-3 cursor-pointer z-10"
-              />
-            </>
-          )}
           {!_.isEmpty(thisCard?.image) && !loading ? (
             <button
               {...longPressEvent}
@@ -76,23 +65,19 @@ export default function NewCard({ card, preview }) {
               {thisCard?.image && (
                 <div
                   style={{
-                    position: "relative",
                     width: thisCard.size == 1 ? "195px" : "400px",
                     height: "170px",
-                    // width: "fit-content",
-                    // height: "fit-content",
-                    // overflow: "hidden",
-                    margin: 0,
-                    padding: 0,
                   }}
+                  className="relative m-0 p-0 rounded-xl"
                 >
                   <div
+                    className="rounded-xl"
                     style={{
                       width: `${
                         (thisCard.size == 1 ? 195 : 400) *
                         (thisCard?.pinchPanZoom?.scale || 1)
                       }px`,
-                      height: `${170 * thisCard?.pinchPanZoom?.scale || 1}px`,
+                      height: `${170 * (thisCard?.pinchPanZoom?.scale || 1)}px`,
                       display: "flex",
                       justifyContent: "center",
 
@@ -114,7 +99,7 @@ export default function NewCard({ card, preview }) {
                   >
                     <Image
                       onLoad={() => console.log("loaded", card.i)}
-                      className="object-center"
+                      className="object-center "
                       alt="Mountains"
                       src={thisCard?.image}
                       layout="fill"
@@ -170,7 +155,7 @@ export default function NewCard({ card, preview }) {
                       (thisCard.size == 1 ? 195 : 400) *
                       (thisCard?.pinchPanZoom?.scale || 1)
                     }px`,
-                    height: `${170 * thisCard?.pinchPanZoom?.scale || 1}px`,
+                    height: `${170 * (thisCard?.pinchPanZoom?.scale || 1)}px`,
                     display: "flex",
                     justifyContent: "center",
 
